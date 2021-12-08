@@ -27,3 +27,4 @@ jobs:
           echo "Hello ${{ github.event.inputs.name }}!"
           echo "- in ${{ github.event.inputs.home }}!"
           docker ps
+          aws --version
