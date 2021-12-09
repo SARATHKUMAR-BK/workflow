@@ -28,3 +28,9 @@ jobs:
           echo "- in ${{ github.event.inputs.home }}!"
           aws --version
           docker ps
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+         aws-access-key-id: ${{ secrets.ACCESSKEY }}
+         aws-secret-access-key: ${{ secrets.SECRETKEY }}
+         aws-region: ap-south-1
