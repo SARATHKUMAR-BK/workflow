@@ -37,6 +37,7 @@ jobs:
   call_another:
       runs-on: self-hosted
       steps:
+       - uses: actions/checkout@v2
        -  name: Call s3 cration file
           if: github.event.inputs.name == 'sarath'
           uses: ./new/action.yaml
