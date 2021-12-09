@@ -39,7 +39,7 @@ jobs:
       steps:
        - uses: actions/checkout@v2
          with:
-          path: new
+          path: new/actions
        -  name: Call s3 cration file
           if: github.event.inputs.name == 'sarath'
           uses: ./new/actions/action.yaml
