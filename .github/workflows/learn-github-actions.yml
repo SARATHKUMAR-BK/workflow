@@ -5,11 +5,11 @@ on:
       name:
         description: Person to greet
         required: true
-        default: "sarath"
+        default: sarath
       home:
         description: location
         required: false
-        default: "Gobi"
+        default: Gobi
 jobs:
   call_another:
       runs-on: self-hosted
