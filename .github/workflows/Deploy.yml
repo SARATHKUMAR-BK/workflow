@@ -19,7 +19,7 @@ on:
         default: aws
         required: true
       user:
-        default: Vasanth
+        default: Sarath
       app_version:
         description: Specify the current app version ( Example 1012 )
         default: "1012"
