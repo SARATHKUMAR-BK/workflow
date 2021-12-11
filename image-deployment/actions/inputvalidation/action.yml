@@ -45,4 +45,18 @@ runs:
              echo "$cldp_component"
           fi 
         done
+        for cldp_component in ${components[@]}
+         echo "$cldp_component"
+        done
+        IFS="," read -a tags <<< ${{ inputs.tags }}
+        if [[ "${{ inputs.env }}" = "dev" || "${{ inputs.env }}" = "spro" ]]
+        then
+          if [[ ${#components[@]} -ne ${#tags[@]} ]]
+          then
+            echo "Invalid Tags and Image pairs"
+            echo ${components[@]}
+            echo ${tags[@]}
+            exit 1
+          fi
+        fi
       shell: bash
