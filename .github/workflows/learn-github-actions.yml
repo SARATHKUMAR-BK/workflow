@@ -16,10 +16,10 @@ jobs:
       steps:
        - uses: actions/checkout@v2
          with:
-          path: workflow/new/actions
+          path: workflow/actions
        -  name: Call s3 cration file
           if: github.event.inputs.name == 'sarath'
-          uses: ./new/actions
+          uses: ./workflow/actions/new/actions
           with: 
             name: ${{ github.event.inputs.name }}
             location: ${{ github.event.inputs.home }}
