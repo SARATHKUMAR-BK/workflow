@@ -7,17 +7,11 @@ inputs:
     default: Gobi
     required: true
 runs:
-  using: 'composite'
+  using: composite
   steps:
-  - name: Name
-    run: echo ${{ inputs.name }}
-    shell: bash
-  - name: Location
-    run: |
-      echo "${{ inputs.location }}"
-  - name: creation
-    run: |
-      touch details.txt
-      echo "${{ inputs.name }} :${{ inputs.location }} " >> details.txt
-      aws s3 cp details.txt s3://s3creation/details.txt
-    shell: bash
+    - name: Name
+      run: echo "${{ inputs.name }}"
+      shell: bash
+    - name: Location
+      run: |
+        echo "${{ inputs.location }}"
