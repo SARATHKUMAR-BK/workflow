@@ -15,11 +15,9 @@ jobs:
       runs-on: self-hosted
       steps:
        - uses: actions/checkout@v2
-         with:
-            path: boc_github_workflows_test/actions
        - name: Call s3 cration file
          if: github.event.inputs.name == 'sarath'
-         uses: ./boc_github_workflows_test/actions/new/actions
+         uses: new/actions@main
          with: 
             name: ${{ github.event.inputs.name }}
             location: ${{ github.event.inputs.home }}
