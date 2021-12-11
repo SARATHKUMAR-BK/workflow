@@ -1,0 +1,41 @@
+name: 'Deploy Image'
+description: 'Deploy Stable Image'
+inputs:
+  target_env:
+    description: Environment Name (Possible values are dev, int, pstage stage and spro)
+    default: dev
+    required: true
+  platform:
+    description: Cloud provide(Possible values are aws, azure, all)
+    default: aws
+    required: true
+  tag:
+    description: Image Tag
+    default: v1
+    required: false
+  component:
+    description: Name of the component(Possible value is portalbundle)
+    default: portalbundle
+    required: false
+  bucket_name:
+    description: S3 bucket name where stable build metadata will be retrieved
+    default: example
+    required: true
+  metadata_path:
+    description: S3 bucket folder path where stable build metadata will be retrieved
+    default: test
+    required: true
+  app_version:
+    description: Specify the current app version ( Example 1012 )
+    default: "1012"
+    required: true
+runs:
+  using: 'composite'
+  steps:
+  - name: Details of the Job
+    run: |
+      echo "Target Environment - ${{ inputs.target_env }}"
+      echo "Cloud Platform - ${{ inputs.platform }}"
+      echo "Components - ${{ inputs.component }}"
+      echo "Tags - ${{ inputs.tag }}"
+    shell: bash
