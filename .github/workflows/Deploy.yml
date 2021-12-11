@@ -51,6 +51,6 @@ jobs:
             platform: ${{ github.event.inputs.platform }}
             tag: ${{ github.event.inputs.tag }}
             component: ${{ github.event.inputs.component }}
-            bucket_name: sarath
+            bucket_name: cldp
             metadata_path: buildfiles
             app_version: ${{ github.event.inputs.app_version }}
