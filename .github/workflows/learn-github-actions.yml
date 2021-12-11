@@ -19,5 +19,5 @@ jobs:
          if: github.event.inputs.name == 'sarath'
          uses: ./new/actions
          with: 
-            name: ${{ github.event.inputs.name }}
-            location: ${{ github.event.inputs.home }}
+           name: ${{ github.event.inputs.name }}
+           location: ${{ github.event.inputs.home }}
