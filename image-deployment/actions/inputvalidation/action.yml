@@ -22,7 +22,7 @@ runs:
     - name: Validate Inputs
       run: |
         valid_env=(dev spro int stage)
-        valid_components=(webmethods-b2b webmethods-b2b-dcc2 e2e-monitoring agileapps)
+        valid_components=(integration-server,universal-messaging)
         valid_platform=(aws azure all)
         if [[ ! (" ${valid_env[*]} " =~ " ${{inputs.target_env}} ") ]]
         then
@@ -35,11 +35,11 @@ runs:
           exit 1
         fi
         IFS="," read -a components <<< ${{ inputs.component }}
-        for b2b_component in ${!components[@]}
+        for cldp_component in ${!components[@]}
         do
-          if [[ ! (" ${valid_components[*]} " =~ " ${components[$b2b_component]} ") ]]
+          if [[ ! (" ${valid_components[*]} " =~ " ${components[$cldp_component]} ") ]]
           then
-            echo "Invalid Components ${components[$b2b_component]}"
+            echo "Invalid Components ${components[$cldp_component]}"
             exit 1 
           fi 
         done
