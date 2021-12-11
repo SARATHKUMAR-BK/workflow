@@ -38,4 +38,6 @@ runs:
       echo "Cloud Platform - ${{ inputs.platform }}"
       echo "Components - ${{ inputs.component }}"
       echo "Tags - ${{ inputs.tag }}"
+      deployment_file="${{ inputs.target_env }}-${{ inputs.app_version }}-deploy-builds.txt"
+      aws s3 cp s3://${{inputs.bucket_name}}/${{inputs.metadata_path}}/$deployment_file $deployment_file
     shell: bash
