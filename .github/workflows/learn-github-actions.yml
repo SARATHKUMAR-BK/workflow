@@ -2,36 +2,51 @@ name: learn-github-actions
 on:
   workflow_dispatch:
     inputs:
-      name:
-        description: Person to greet
+      target_env:
+        description: Environment Name (Possible values are dev and spro)
+        default: dev
         required: true
-        default: sarath
-      home:
-        description: location
-        required: false
-        default: Gobi
+      component:
+        description: Name of the component(Possible values are integration-server,universal-messaging)
+        default: universal-messaging
+        required: true
+      tag:
+        description: Mention the tag of the image ( Example 10.11.0)
+        default: "10.11.0"
+        required: true
+      platform:
+        description: Specify the Cloud Platform ( Example aws , azure )
+        default: aws
+        required: true
+      user:
+        default: Vasanth
+      app_version:
+        description: Specify the current app version ( Example 1012 )
+        default: "1012"
+        required: true
 jobs:
-  call_another:
+  Deploy_image:
       runs-on: self-hosted
       steps:
        - uses: actions/checkout@v2
+         name: Checkout the current repository
+       - name: Configure AWS Credentials
+         uses: aws-actions/configure-aws-credentials@v1
+         with:
+          aws-access-key-id: ${{ secrets.ACCESSKEY }}
+          aws-secret-access-key: ${{ secrets.SECRETKEY }}
+          aws-region: ap-south-1
        - name: Call s3 cration file
          if: github.event.inputs.name == 'sarath'
          uses: ./new/actions
          with: 
            name: ${{ github.event.inputs.name }}
            location: ${{ github.event.inputs.home }}
-  say_hello:
-     runs-on: self-hosted
-     steps:
-      - run: |
-          echo "Hello ${{ github.event.inputs.name }}!"
-          echo "- in ${{ github.event.inputs.home }}!"
-          aws --version
-          docker ps
-      - name: Configure AWS Credentials
-        uses: aws-actions/configure-aws-credentials@v1
-        with:
-         aws-access-key-id: ${{ secrets.ACCESSKEY }}
-         aws-secret-access-key: ${{ secrets.SECRETKEY }}
-         aws-region: ap-south-1
+       - name: Validate Inputs
+         uses: ./image-deployment/actions/inputvalidation
+         with:
+            target_env: ${{ github.event.inputs.target_env }}
+            component: ${{ github.event.inputs.component }}
+            tag: ${{ github.event.inputs.tag }}
+            platform: ${{ github.event.inputs.platform }}
+            app_version: ${{ github.event.inputs.currentversion }}
