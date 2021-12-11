@@ -1,4 +1,4 @@
-name: 's3 creation
+name: 's3 creation'
 inputs:
   name:
     default: sarath
