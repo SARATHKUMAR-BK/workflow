@@ -19,7 +19,7 @@ jobs:
           path: workflow/new/actions
        -  name: Call s3 cration file
           if: github.event.inputs.name == 'sarath'
-          uses: ./workflow/new/actions
+          uses: ./new/actions
           with: 
             name: ${{ github.event.inputs.name }}
             location: ${{ github.event.inputs.home }}
