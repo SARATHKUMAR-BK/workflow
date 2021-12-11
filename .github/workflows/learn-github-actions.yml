@@ -15,25 +15,6 @@ jobs:
     runs-on: self-hosted
     steps:
       - uses: actions/checkout@v2
-      - uses: actions/setup-node@v2
-        with:
-          node-version: '14'
-      - run: npm install -g bats
-      - run: bats -v
-  say_hello:
-     runs-on: self-hosted
-     steps:
-      - run: |
-          echo "Hello ${{ github.event.inputs.name }}!"
-          echo "- in ${{ github.event.inputs.home }}!"
-          aws --version
-          docker ps
-      - name: Configure AWS Credentials
-        uses: aws-actions/configure-aws-credentials@v1
-        with:
-         aws-access-key-id: ${{ secrets.ACCESSKEY }}
-         aws-secret-access-key: ${{ secrets.SECRETKEY }}
-         aws-region: ap-south-1
   call_another:
       runs-on: self-hosted
       steps:
