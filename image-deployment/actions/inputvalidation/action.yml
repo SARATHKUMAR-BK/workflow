@@ -49,4 +49,12 @@ runs:
         do
          echo "$cldp_component"
         done
+        IFS="," read -a tags <<< ${{ inputs.tag }}
+          if [[ ${#components[@]} -ne ${#tags[@]} ]]
+          then
+            echo "Invalid Tags and Image pairs"
+            echo ${components[@]}
+            echo ${tags[@]}
+            exit 1
+          fi
       shell: bash
