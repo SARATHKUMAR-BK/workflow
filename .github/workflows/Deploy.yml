@@ -26,7 +26,7 @@ on:
         required: true
 jobs:
   Deploy_image:
-      runs-on: self-hosted
+      runs-on: ubuntu-latest
       steps:
        - uses: actions/checkout@v2
          name: Checkout the current repository
