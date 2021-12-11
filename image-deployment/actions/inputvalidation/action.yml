@@ -22,7 +22,7 @@ runs:
     - name: Validate Inputs
       run: |
         valid_env=(dev spro int stage)
-        valid_components=(integration-server,universal-messaging)
+        valid_components=(integration-server universal-messaging)
         valid_platform=(aws azure all)
         if [[ ! (" ${valid_env[*]} " =~ " ${{inputs.target_env}} ") ]]
         then
@@ -41,6 +41,8 @@ runs:
           then
             echo "Invalid Components ${components[$cldp_component]}"
             exit 1 
+          else
+             echo "$cldp_component"
           fi 
         done
       shell: bash
