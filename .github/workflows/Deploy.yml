@@ -51,6 +51,6 @@ jobs:
             platform: ${{ github.event.inputs.platform }}
             tag: ${{ github.event.inputs.tag }}
             component: ${{ github.event.inputs.component }}
-            bucket_name: ${{ secrets.STABLE_BUILDS_BUCKET_NAME }}
-            metadata_path: ${{ secrets.STABLE_BUILDS_METADATA_PATH }}
+            bucket_name: sarath
+            metadata_path: buildfiles
             app_version: ${{ github.event.inputs.app_version }}
