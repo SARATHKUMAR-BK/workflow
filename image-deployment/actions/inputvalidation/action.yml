@@ -45,10 +45,6 @@ runs:
              echo "$cldp_component"
           fi 
         done
-        for cldp_component in ${components[@]}
-        do
-         echo "$cldp_component"
-        done
         IFS="," read -a tags <<< ${{ inputs.tag }}
           if [[ ${#components[@]} -ne ${#tags[@]} ]]
           then
