@@ -1,9 +1,9 @@
-name: learn-github-actions
+name: Deploy image
 on:
   workflow_dispatch:
     inputs:
       target_env:
-        description: Environment Name (Possible values are dev and spro)
+        description: Env to deploy the builds(dev,int,stag,spro)
         default: dev
         required: true
       component:
@@ -35,13 +35,7 @@ jobs:
          with:
           aws-access-key-id: ${{ secrets.ACCESSKEY }}
           aws-secret-access-key: ${{ secrets.SECRETKEY }}
-          aws-region: ap-south-1
-       - name: Call s3 cration file
-         if: github.event.inputs.name == 'sarath'
-         uses: ./new/actions
-         with: 
-           name: ${{ github.event.inputs.name }}
-           location: ${{ github.event.inputs.home }}
+          aws-region: ${{ secrets.AWS_REGION }}
        - name: Validate Inputs
          uses: ./image-deployment/actions/inputvalidation
          with:
@@ -50,3 +44,13 @@ jobs:
             tag: ${{ github.event.inputs.tag }}
             platform: ${{ github.event.inputs.platform }}
             app_version: ${{ github.event.inputs.currentversion }}
+       - name: Deployement Process
+         uses: ./image-deployment/actions/deploy-image
+         with: 
+            target_env: ${{ github.event.inputs.target_env }}
+            platform: ${{ github.event.inputs.platform }}
+            tag: ${{ github.event.inputs.tag }}
+            component: ${{ github.event.inputs.component }}
+            bucket_name: ${{ secrets.STABLE_BUILDS_BUCKET_NAME }}
+            metadata_path: ${{ secrets.STABLE_BUILDS_METADATA_PATH }}
+            app_version: ${{ github.event.inputs.app_version }}
