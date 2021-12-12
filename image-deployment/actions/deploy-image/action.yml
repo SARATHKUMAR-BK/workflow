@@ -105,6 +105,8 @@ runs:
         # refresh_components = a,b,c,d...  10.11,10.12,10.13,....
           add_tag_seperator=$(IFS=',';echo "${image_tags[*]}")
           echo ${add_tag_seperator[@]}
+          chmod 777 ./image-deployment/actions/deploy-image/dep.sh
+          bash ./image-deployment/actions/deploy-image/dep.sh
           if [[  "${{ inputs.target_env }}" = "dev" || "${{ inputs.target_env }}" = "spro" ]]
           then
             aws s3 cp $deployment_file s3://${{inputs.bucket_name}}/${{inputs.metadata_path}}/$deployment_file
