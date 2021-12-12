@@ -1,0 +1,47 @@
+name: CLDP Promotion Job
+on:
+  workflow_dispatch:
+    inputs:
+      platform:
+        description: "Platform (aws,azure,all)"
+        default: aws
+        required: true
+      source_env:
+        description: "Source Environment(dev,int,stage,spro)"
+        default: dev
+        required: true
+      target_env:
+        description: "Target Environment(int,stage,preprod)"
+        default: int
+        required: true
+      components:
+        description: "Components to promote (universal-messaging,terracotta-server)"
+        default: terracotta-server
+        required: true
+      tags:
+        description: "Tags of corresponding components (applicable for dev and spro source envs)"
+        required: false
+      app_version:
+        description: "Current App Version"
+        default: "1012"
+        required: true
+jobs:
+  Promote-Images:
+    runs-on: ubuntu-latest
+    steps:
+       - uses: actions/checkout@v2
+         name: Checkout the current repository
+       - name: Configure AWS Credentials
+         uses: aws-actions/configure-aws-credentials@v1
+         with:
+          aws-access-key-id: ${{ secrets.ACCESSKEY }}
+          aws-secret-access-key: ${{ secrets.SECRETKEY }}
+          aws-region: ${{ secrets.AWS_REGION }}
+      - name: ECR RnD Login
+        id: ecr-login
+        uses: aws-actions/amazon-ecr-login@v1
+        runs: |
+          echo "${{ steps.ecr-login.outputs.registry }}"
+        if: github.event.inputs.platform == 'aws' || github.event.inputs.platform == 'all'
+        
+        
