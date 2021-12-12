@@ -38,6 +38,77 @@ runs:
       echo "Cloud Platform - ${{ inputs.platform }}"
       echo "Components - ${{ inputs.component }}"
       echo "Tags - ${{ inputs.tag }}"
-      deployment_file="${{ inputs.target_env }}-${{ inputs.app_version }}-deploy-builds.txt"
-      aws s3 cp s3://${{inputs.bucket_name}}/${{inputs.metadata_path}}/$deployment_file $deployment_file
+      echo ${{ inputs.target_env }}
+    shell: bash
+  - name: Deploy Stable Image
+    run: |
+      if [[ "${{ inputs.platform }}" = "all" ]]
+        then
+          platforms=(aws azure)
+        else
+          platforms=(${{ inputs.platform }})
+      fi
+      components=($(echo ${{ inputs.component }} | sed -e 's\,\ \g'))
+      tags=($(echo ${{ inputs.tag }} | sed -e 's\,\ \g'))
+      echo "${components[@]}"
+      echo "${tags[@]}"
+      echo " "
+      if [[ "${{ inputs.target_env }}" = "dev" || "${{ inputs.target_env }}" = "spro" ]]
+        then
+          for platforms_index in ${!platforms[@]} 
+          do
+            deployment_file="${platforms[${platforms_index}]}-${{ inputs.target_env }}-${{ inputs.app_version }}-deploy-builds.txt"
+            lookforfile=$(aws s3 ls s3://${{inputs.bucket_name}}/${{inputs.metadata_path}}/$deployment_file || true)
+            if [[ "$lookforfile" == "" ]]
+            then
+              touch "./${deployment_file}"
+            else
+              aws s3 cp s3://${{inputs.bucket_name}}/${{inputs.metadata_path}}/$deployment_file $deployment_file
+            fi
+            for component_index in ${!components[@]}
+            do
+              lookforcomponent=`sed -n "/^${components[${component_index}]}:/p" $deployment_file || true`
+              if [[ "$lookforcomponent" = "" ]]
+              then
+                      echo "${components[${component_index}]}: ${tags[${component_index}]}" >> $deployment_file
+              else
+                      sed -i "s/${components[${component_index}]}:.*/${components[${component_index}]}: ${tags[${component_index}]}/g" $deployment_file
+              fi
+            done
+          done
+        else
+          for platform_index in ${!platforms[@]}
+          do
+            deployment_file="${platforms[${platform_index}]}-${{ inputs.target_env }}-${{ inputs.app_version }}-deploy-builds.txt"
+            aws s3 cp s3://${{inputs.bucket_name}}/${{inputs.metadata_path}}/$deployment_file $deployment_file
+          done
+        fi
+        
+        
+        #------------------------------------------------------------------------------Start deploying to environment------------------------------------------------------------------------------
+        datelabel=$(TZ=IST-5:30 date | sed 's/ /-/g')
+        for platform_index in ${!platforms[@]}
+        do
+          image_components=()
+          image_tags=()
+          deployment_file="${platforms[${platform_index}]}-${{ inputs.target_env }}-${{ inputs.app_version }}-deploy-builds.txt"
+          for component_index in ${!components[@]}
+          do
+            image_components+=($(sed -n "/^${components[${component_index}]}:/p" $deployment_file | awk -F ':' '{print $1}' | tr -d [:space:]))
+            image_tags+=($(sed -n "/^${components[${component_index}]}:/p" $deployment_file | awk '{print $2}' | tr -d [:space:]))
+          done
+          echo "Deployment Images to  ${platforms[$platform_index]} for ${{ inputs.target_env }} environment"
+          echo ${image_components[@]}
+          echo ${image_tags[@]}
+          add_component_seperator=$(IFS=',';echo "${image_components[*]}")
+           echo ${add_component_seperator[@]}
+        # refresh_components = a,b,c,d...  10.11,10.12,10.13,....
+          add_tag_seperator=$(IFS=',';echo "${image_tags[*]}")
+          echo ${add_tag_seperator[@]}
+          if [[  "${{ inputs.target_env }}" = "dev" || "${{ inputs.target_env }}" = "spro" ]]
+          then
+            aws s3 cp $deployment_file s3://${{inputs.bucket_name}}/${{inputs.metadata_path}}/$deployment_file
+          fi
+          aws s3 cp $deployment_file s3://${{inputs.bucket_name}}/${{inputs.metadata_path}}/${datelabel}-${platforms[$b2b_platform]}-${{ inputs.target_env }}-${{ inputs.app_version }}-deploy-builds.txt
+        done
     shell: bash
