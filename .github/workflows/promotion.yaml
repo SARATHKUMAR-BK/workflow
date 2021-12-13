@@ -45,7 +45,8 @@ jobs:
          run: |
            echo "${{ steps.ecr-login.outputs.registry }}"
            docker pull hello-world
-           docker push ${{ steps.ecr-login.outputs.registry }}/kub-sic/hello-world:latest
+           docker images
+     ##      docker push ${{ steps.ecr-login.outputs.registry }}/kub-sic/hello-world:latest
          shell: bash
         
         
