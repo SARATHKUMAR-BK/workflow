@@ -41,12 +41,49 @@ jobs:
           id: ecr-login
           uses: aws-actions/amazon-ecr-login@v1
           if: github.event.inputs.platform == 'aws' || github.event.inputs.platform == 'all'
-       - name: ecr verification
+       - name: AWS Preprod login
+         uses: aws-actions/configure-aws-credentials@v1
+         with:
+            aws-access-key-id: ${{ secrets.AWS_PREPROD_ACCESS_KEY }}
+            aws-secret-access-key: ${{ secrets.AWS_PREPROD_SECRET_KEY }}
+            aws-region: ${{ secrets.AWS_PREPROD_REGION }}
+         if: github.event.inputs.target_env == 'preprod' && (github.event.inputs.platform == 'aws' || github.event.inputs.platform == 'all') 
+       - name: ECR Preprod Login
+         id: ecr-preprod-login
+         uses: aws-actions/amazon-ecr-login@v1
+         if: github.event.inputs.target_env == 'preprod' && (github.event.inputs.platform == 'aws' || github.event.inputs.platform == 'all')
+       - name: Set up Reg URLs
+         id: img-regs
          run: |
-           echo "${{ steps.ecr-login.outputs.registry }}"
-           docker pull hello-world
-           docker images
-     ##      docker push ${{ steps.ecr-login.outputs.registry }}/kub-sic/hello-world:latest
-         shell: bash
-        
+          echo "::set-output name=AWS_SOURCE_REG_URL::${{ steps.ecr-login.outputs.registry }}"
+          if [[ github.event.inputs.target_env == 'preprod' ]]
+          then
+            echo "::set-output name=AWS_TARGET_REG_URL::${{ steps.ecr-preprod-login.outputs.registry }}"
+          else
+            echo "::set-output name=AWS_TARGET_REG_URL::${{ steps.ecr-login.outputs.registry }}"
+          fi
+          if [[ "${{ github.event.inputs.source_env  }}" = "dev" ]]
+            then
+            echo "::set-output name=AWS_SOURCE_REPO_PREFIX::kub-sic"
+            echo "::set-output name=AWS_TARGET_REPO_PREFIX::kub-int"
+          elif [[ "${{ github.event.inputs.source_env  }}" = "int" ]]
+            then
+            echo "::set-output name=AWS_SOURCE_REPO_PREFIX::kub-int"
+            echo "::set-output name=AWS_TARGET_REPO_PREFIX::kub-stg"
+          fi
+       - name: Promote Images to Env
+         uses: ./image-deployment/actions/promote-image
+         with:
+          platform: ${{ github.event.inputs.platform }}
+          source_env: ${{ github.event.inputs.source_env }}
+          target_env: ${{ github.event.inputs.target_env }}
+          components: ${{ github.event.inputs.components }}
+          tags: ${{ github.event.inputs.tags }}
+          app_version: ${{ github.event.inputs.app_version }}
+          bucket_name: cldp
+          metadata_path: buildfiles
+          source_aws_registry: ${{ steps.img-regs.outputs.AWS_SOURCE_REG_URL }}
+          target_aws_registry: ${{ steps.img-regs.outputs.AWS_TARGET_REG_URL }}
+          source_aws_repo_prefix: ${{ steps.img-regs.outputs.AWS_SOURCE_REPO_PREFIX }}
+          target_aws_repo_prefix: ${{ steps.img-regs.outputs.AWS_TARGET_REPO_PREFIX }} 
         
