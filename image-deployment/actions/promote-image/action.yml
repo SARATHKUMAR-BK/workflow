@@ -1,0 +1,46 @@
+name: "Promote Images"
+description: "Promote Images to the target environment"
+inputs:
+  platform:
+    description: "Platform"
+    required: true
+  source_env:
+    description: "Source Environment"
+    required: true
+  target_env:
+    description: "Target Environment"
+    required: true
+  components:
+    description: "Components"
+    required: true
+  tags:
+    description: "Components Tags"
+    required: true
+  app_version:
+    description: current promotion process version
+    required: true
+  bucket_name:
+    description: Metadata Bucket name
+    required: true
+  metadata_path:
+    description: Metadata Path
+    required: true
+  source_aws_registry:
+    description: Source AWS registry
+    required: true
+  target_aws_registry:
+    description: Source AWS registry
+    required: true
+  source_aws_repo_prefix:
+    description: Repo prefix for source AWS Repo
+    required: true
+  target_aws_repo_prefix:
+    description: Repo prefix for target AWS Repo
+    required: true
+runs:
+  using: composite
+  steps:
+    - name: promote-images
+      shell: bash
+      run: |
+       echo "Hlo"
