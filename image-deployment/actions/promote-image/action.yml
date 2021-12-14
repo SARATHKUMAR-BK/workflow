@@ -88,7 +88,7 @@ runs:
                  done
            else
                  sourceenv_filepresent=$(aws s3 ls s3://${{ inputs.metadatabucket }}/${{ inputs.metadatapath }}/$sourcebuildfile || true)
-                 if [[ "sourceenv_filepresent" == "" ]]
+                 if [[ "$sourceenv_filepresent" == "" ]]
                  then
                     echo "No deployments done in source env, Cannot promote stable builds . Can u please first promote to ${{ inputs.source_env }}"
                     exit 1
