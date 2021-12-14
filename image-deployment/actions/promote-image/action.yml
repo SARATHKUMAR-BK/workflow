@@ -140,7 +140,7 @@ runs:
          
                   docker pull docker
                   docker tag docker ${{ inputs.source_aws_registry }}/kub-int/utf:21.10
-                  docker push ${{ inputs.source_aws_registry }}/kub-int/utf:21.10
+                  docker push ${{ inputs.source_aws_registry }}/kub-int/utf:21.10 --region=us-east-1
 
         
 
