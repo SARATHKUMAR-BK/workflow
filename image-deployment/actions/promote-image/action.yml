@@ -60,60 +60,81 @@ runs:
 
         for pindex in ${!platforms[@]}
         do
-          sourcebuildfile="${platforms[${pindex}]}-${{ inputs.source_env }}-${{ inputs.currentversion }}-builds.txt"
-          targetbuildfile="${platforms[${pindex}]}-${{ inputs.target_env }}-${{ inputs.currentversion }}-builds.txt"
-           #--------------------Check source file and tags is present or not--------------------------------------------------#
-          if [[ "${{ inputs.source_env }}" = "dev" || "${{ inputs.source_env }}" = "spro" ]]
-          then
-                for cindex in ${!components[@]}
-                do
-                    echo "start"
-                    repo_present=$(aws ecr describe-repositories --region=us-east-1  | jq -r .repositories[].repositoryName | grep -E "${{ inputs.source_aws_repo_prefix }}/${components[${cindex}]}$" || true)
-                    echo "$repo_present  end"
-                   if [[  "$repo_present" == "" ]]
-                    then
-                        echo " ${components[${cindex}]} is not there in source env" 
-                        exit 1
-                    else
-                        tag_present=$(aws ecr describe-images --repository-name=${{ inputs.source_aws_repo_prefix }}/${components[${cindex}]}  --query 'sort_by(imageDetails,& imagePushedAt)[*].imageTags[0]' --region=us-east-1 | grep "${tags[${cindex}]}" || true)
-                        if  [[  "$tag_present" == "" ]]
-                        then
-                            echo "${tags[${cindex}]} is not present in ${components[${cindex}]} " 
-                            exit 1
-                        else
-                              echo "${components[${cindex}]}:${tags[${cindex}]} is present in source env"
-                        
-                         fi
-                      fi
-                 done
-           else
-                 sourceenv_filepresent=$(aws s3 ls s3://${{ inputs.bucket_name }}/${{ inputs.metadata_path }}/$sourcebuildfile || true)
-                 if [[ "$sourceenv_filepresent" == "" ]]
-                 then
-                    echo "No deployments done in source env, Cannot promote stable builds . Can u please first promote to ${{ inputs.source_env }}"
-                    exit 1
+                sourcebuildfile="${platforms[${pindex}]}-${{ inputs.source_env }}-${{ inputs.currentversion }}-builds.txt"
+                targetbuildfile="${platforms[${pindex}]}-${{ inputs.target_env }}-${{ inputs.currentversion }}-builds.txt"
+                 #--------------------Check source file and tags is present or not--------------------------------------------------#
+                if [[ "${{ inputs.source_env }}" = "dev" || "${{ inputs.source_env }}" = "spro" ]]
+                then
+                      for cindex in ${!components[@]}
+                      do
+                          echo "start"
+                          repo_present=$(aws ecr describe-repositories --region=us-east-1  | jq -r .repositories[].repositoryName | grep -E "${{ inputs.source_aws_repo_prefix }}/${components[${cindex}]}$" || true)
+                          echo "$repo_present  end"
+                         if [[  "$repo_present" == "" ]]
+                          then
+                              echo " ${components[${cindex}]} is not there in source env" 
+                              exit 1
+                          else
+                              tag_present=$(aws ecr describe-images --repository-name=${{ inputs.source_aws_repo_prefix }}/${components[${cindex}]}  --query 'sort_by(imageDetails,& imagePushedAt)[*].imageTags[0]' --region=us-east-1 | grep "${tags[${cindex}]}" || true)
+                              if  [[  "$tag_present" == "" ]]
+                              then
+                                  echo "${tags[${cindex}]} is not present in ${components[${cindex}]} " 
+                                  exit 1
+                              else
+                                    echo "${components[${cindex}]}:${tags[${cindex}]} is present in source env"
+
+                               fi
+                            fi
+                       done
+                 else
+                       sourceenv_filepresent=$(aws s3 ls s3://${{ inputs.bucket_name }}/${{ inputs.metadata_path }}/$sourcebuildfile || true)
+                       if [[ "$sourceenv_filepresent" == "" ]]
+                       then
+                          echo "No deployments done in source env, Cannot promote stable builds . Can u please first promote to ${{ inputs.source_env }}"
+                          exit 1
+                       fi
+                        aws s3 cp s3://${{ inputs.bucket_name  }}/${{ inputs.metadata_path }}/$sourcebuildfile $sourcebuildfile 
+                       for cindex in ${!components[@]}
+                       do
+                           component_present=`sed -n "/^${components[${cindex}]}:.*/p" $sourcebuildfile || true`
+                           if [[ "$tag_present" = "" ]]
+                           then
+                              echo "${components[$cindex]} Image not deployed in previous env"
+                              exit 1
+                           fi  
+                        done        
                  fi
-                  aws s3 cp s3://${{ inputs.bucket_name  }}/${{ inputs.metadata_path }}/$sourcebuildfile $sourcebuildfile 
-                 for cindex in ${!components[@]}
-                 do
-                     component_present=`sed -n "/^${components[${cindex}]}:.*/p" $sourcebuildfile || true`
-                     if [[ "$tag_present" = "" ]]
-                     then
-                        echo "${components[$cindex]} Image not deployed in previous env"
-                        exit 1
-                     fi  
-                  done        
-           fi
-           #-----------------------Target file creation -----------------------------------------------#
-            targetenv_filepresent=$(aws s3 ls s3://${{ inputs.bucket_name }}/${{ inputs.metadata_path }}/$targetbuildfile || true)
-            if [[ "$targetenv_filepresent" == "" ]]
-            then
-              echo "target env buile file not present, so target file is created now"
-              touch "./${targetbuildfile}"
-            else
-              echo "taget env built file present"
-              aws s3 cp s3://${{ inputs.bucket_name }}/${{ inputs.metadata_path }}/$targetbuildfile $targetbuildfile
-            fi
+                 
+                 #-----------------------Target file creation -----------------------------------------------#
+                  targetenv_filepresent=$(aws s3 ls s3://${{ inputs.bucket_name }}/${{ inputs.metadata_path }}/$targetbuildfile || true)
+                  if [[ "$targetenv_filepresent" == "" ]]
+                  then
+                    echo "target env buile file not present, so target file is created now"
+                    touch "./${targetbuildfile}"
+                  else
+                    echo "taget env built file present"
+                    aws s3 cp s3://${{ inputs.bucket_name }}/${{ inputs.metadata_path }}/$targetbuildfile $targetbuildfile
+                  fi
+                  
+                  #------------------Target file is updated ------------------------------------------------#
+                  for cindex in ${!components[@]}
+                  do
+                    if [[ "${{ inputs.source_env }}" = "dev" || "${{ inputs.source_env }}" = "spro" ]]
+                    then
+                        component_tag=${tags[${cindex}]}
+                    else
+                        component_tag=$(sed -n "/^${components[${cindex}]}:.*/p" $sourcebuildfile | awk '{print $2}' | tr -d [:space:])
+                    fi
+                    target_tag_present=`sed -n "/^${components[${cindex}]}:.*/p" $targetbuildfile || true`
+                    if [[ "$target_tag_present" = "" ]]
+                    then
+                      echo "tag for ${components[${cindex}]} not present in target file add it"
+                      echo "${components[${cindex}]}: $component_tag" >> $targetbuildfile
+                    else
+                      echo "tag for ${components[${cindex}]} present in target file changing it"
+                      sed -i "s/${components[${cindex}]}:.*/${components[${cindex}]}: $component_tag/g" $targetbuildfile
+                    fi
+                  done
          done
 
         
