@@ -135,6 +135,7 @@ runs:
                       sed -i "s/${components[${cindex}]}:.*/${components[${cindex}]}: $component_tag/g" $targetbuildfile
                     fi
                   done
+                  cat $targetbuildfile
          done
 
         
