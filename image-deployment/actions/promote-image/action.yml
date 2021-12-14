@@ -67,10 +67,7 @@ runs:
           then
                 for cindex in ${!components[@]}
                 do
-                    echo "start"
-                    echo "${{ inputs.source_aws_repo_prefix }}/${components[${cindex}]}"
-                    aws ecr describe-repositories --region=us-east-1  | jq -r .repositories[].repositoryName | grep -E "kub-sic/terracotta-server9$" || true
-                    echo "end"
+                    aws ecr describe-repositories --region=us-east-1  | jq -r .repositories[].repositoryName | grep -E "${{ inputs.source_aws_repo_prefix }}/${components[${cindex}]}$" || true
                     if [ $? -ne 0 ]
                     then
                         echo " is not there in source env" 
