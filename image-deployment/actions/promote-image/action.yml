@@ -68,7 +68,7 @@ runs:
                 for cindex in ${!components[@]}
                 do
                     echo "start"
-                    aws ecr describe-repositories --region=us-east-1  | jq -r .repositories[].repositoryName | grep "${{ inputs.source_aws_repo_prefix }}/${components[${cindex}]}$" &> /dev/null 
+                    a=`aws ecr describe-repositories --region=us-east-1  | jq -r .repositories[].repositoryName`  
                     echo "end"
                     if [ $? -ne 0 ]
                     then
