@@ -69,7 +69,7 @@ runs:
                 do
                     echo "start"
                     a=`aws ecr describe-repositories --region=us-east-1  | jq -r .repositories[].repositoryName`  
-                    grep "${{ inputs.source_aws_repo_prefix }}/${components[${cindex}]}$" $a -s
+                    grep "${{ inputs.source_aws_repo_prefix }}/${components[${cindex}]}" $a -s
                     echo "end"
                     if [ $? -ne 0 ]
                     then
