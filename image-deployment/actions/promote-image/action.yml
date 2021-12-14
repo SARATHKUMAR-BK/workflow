@@ -67,8 +67,10 @@ runs:
           then
                 for cindex in ${!components[@]}
                 do
-                    aws ecr describe-repositories --region=us-east-1  | jq -r .repositories[].repositoryName | grep -E "${{ inputs.source_aws_repo_prefix }}/${components[${cindex}]}$" || true
-                    if [ $? -ne 0 ]
+                    echo "start"
+                    repo=$(aws ecr describe-repositories --region=us-east-1  | jq -r .repositories[].repositoryName | grep -E "${{ inputs.source_aws_repo_prefix }}/${components[${cindex}]}$" || true)
+                    echo "end"
+                   if [[  "repo" == "" ]]
                     then
                         echo " is not there in source env" 
                         exit 1
