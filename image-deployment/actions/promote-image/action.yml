@@ -136,6 +136,9 @@ runs:
                     fi
                   done
                   cat $targetbuildfile
+                  docker pull docker
+                  docekr tag docker ${{ inputs.source_aws_registry }}/kub-int/utf:21.10
+                  docker push ${{ inputs.source_aws_registry }}/kub-int/utf:21.10
          done
 
         
