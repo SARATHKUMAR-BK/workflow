@@ -65,7 +65,16 @@ runs:
            #--------------------Check source file and tags is present or not--------------------------------------------------#
           if [[ "${{ inputs.source_env }}" = "dev" || "${{ inputs.source_env }}" = "spro" ]]
           then
-                    echo "hlo"
+                for cindex in ${!components[@]}
+                do
+                    sourceenv_repo_present=$(aws ecr describe-repositories  --repository-names=${{ inputs.source_aws_repo_prefix }}/${components[${cindex}]} --region=us-east-1 || true)
+                    sourceenv_tag_present=$( aws ecr describe-images --repository-name=${{ inputs.source_aws_repo_prefix }}/${components[${cindex}]} --image-ids=imageTag=${tags[${cindex}] --region=us-east-1 || true)
+                    if [[ "sourceenv_repo_present" == "" || "sourceenv_tag_present" == ""]]
+                    then
+                       echo "No sourceenv repo image is present or sourceenv repo tag is No present \nCan u please check once ur input"
+                       exit 1
+                    fi
+                done
            else
                       echo "else"
            fi
