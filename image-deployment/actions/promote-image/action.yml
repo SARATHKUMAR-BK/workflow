@@ -67,16 +67,22 @@ runs:
           then
                 for cindex in ${!components[@]}
                 do
-                    sourceenv_repo_present=$(aws ecr describe-repositories  --repository-names=${{ inputs.source_aws_repo_prefix }}/${components[${cindex}]} --region=us-east-1 || true)
-                    sourceenv_tag_present=$( aws ecr describe-images --repository-name=${{ inputs.source_aws_repo_prefix }}/${components[${cindex}]} --image-ids=imageTag=${tags[${cindex}]} --region=us-east-1 || true)
-                    if [[ "sourceenv_repo_present" == "" || "sourceenv_tag_present" == ""  ]]
+                    aws ecr describe-repositories  --repository-names=${{ inputs.source_aws_repo_prefix }}/${components[${cindex}]} --region=us-east-1 
+                    if [ $? -ne 0 ]
                     then
-                       echo "No sourceenv repo image is present or sourceenv repo tag is No present \n Can u please check once ur input"
-                       exit 1
+                        echo "${components[${cindex}]} is not there in source env" 
+                        exit 1
                     else
-                      echo "repo is present"
+                        aws ecr describe-images --repository-name=${{ inputs.source_aws_repo_prefix }}/${components[${cindex}]} --image-ids=imageTag=${tags[${cindex}]} --region=us-east-1 
+                        if [ $? -ne 0 ]
+                        then
+                            echo "${tags[${cindex}]} is not present in ${components[${cindex}]} " 
+                            exit 1
+                        else
+                              echo "${components[${cindex}]}:${tags[${cindex}]} is present in source env"
+                        
                     fi
-                  done
+                 done
            else
                  sourceenv_filepresent=$(aws s3 ls s3://${{ inputs.metadatabucket }}/${{ inputs.metadatapath }}/$sourcebuildfile || true)
                  if [[ "sourceenv_filepresent" == "" ]]
