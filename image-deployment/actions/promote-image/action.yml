@@ -62,6 +62,13 @@ runs:
         do
           sourcebuildfile="${platforms[${pindex}]}-${{ inputs.source_env }}-${{ inputs.currentversion }}-builds.txt"
           targetbuildfile="${platforms[${pindex}]}-${{ inputs.target_env }}-${{ inputs.currentversion }}-builds.txt"
+           #--------------------Check source file and tags is present or not--------------------------------------------------#
+          if [[ "${{ inputs.source_env }}" = "dev" || "${{ inputs.source_env }}" = "spro" ]]
+          then
+                    echo "hlo"
+           else
+                      echo "else"
+           fi
          done
 
         
