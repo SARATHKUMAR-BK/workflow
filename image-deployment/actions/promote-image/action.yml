@@ -43,4 +43,56 @@ runs:
     - name: promote-images
       shell: bash
       run: |
-       echo "Hlo"
+        if [[ "${{ inputs.platform }}" = "all" ]]
+        then
+          platforms=(aws azure)
+        else
+          platforms=(${{ inputs.platform }})
+        fi
+        echo platform: ${platforms}
+        components=($(echo ${{ inputs.components }} | sed -e 's\,\ \g'))
+        if [[ "${{ inputs.source_env }}" = "dev" || "${{ inputs.source_env }}" = "spro" ]]
+        then
+          tags=($(echo ${{ inputs.tags }} | sed -e 's\,\ \g'))
+        else
+          tags=()
+        fi
+        
+        for pindex in ${!platforms[@]}
+        do
+          sourcebuildfile="${platforms[${pindex}]}-${{ inputs.source_env }}-${{ inputs.currentversion }}-builds.txt"
+          targetbuildfile="${platforms[${pindex}]}-${{ inputs.target_env }}-${{ inputs.currentversion }}-builds.txt"
+          #--------------------Check source file and tags is present or not--------------------------------------------------#
+          if [[ "${{ inputs.source_env }}" = "dev" || "${{ inputs.source_env }}" = "spro" ]]
+          then
+                for cindex in ${!components[@]}
+                do
+                    sourceenv_repo_present=$(aws ecr describe-repositories  --repository-names=${{ inputs.source_aws_repo_prefix }}/${components[${cindex}]} --region=us-east-1 || true)
+                    sourceenv_tag_present=$( aws ecr describe-images --repository-name=${{ inputs.source_aws_repo_prefix }}/${components[${cindex}]} --image-ids=imageTag=${tags[${cindex}] --region=us-east-1 || true)
+                    if [[ "sourceenv_repo_present" == "" || "sourceenv_tag_present" == ""]]
+                    then
+                       echo "No sourceenv repo image is present or sourceenv repo tag is No present \nCan u please check once ur input"
+                       exit 1
+                    fi
+                  done
+          else
+                 sourceenv_filepresent=$(aws s3 ls s3://${{ inputs.metadatabucket }}/${{ inputs.metadatapath }}/$sourcebuildfile || true)
+                 if [[ "sourceenv_filepresent" == "" ]]
+                 then
+                    echo "No deployments done in source env, Cannot promote stable builds . Can u please first promote to ${{ inputs.source_env }}"
+                    exit 1
+                 fi
+                 aws s3 cp s3://${{ inputs.metadatabucket }}/${{ inputs.metadatapath }}/$sourcebuildfile $sourcebuildfile 
+                 for cindex in ${!components[@]}
+                 do
+                     component_present=`sed -n "/^${components[${cindex}]}:.*/p" $sourcebuildfile || true`
+                     if [[ "$tag_present" = "" ]]
+                     then
+                        echo "${components[$cindex]} Image not deployed in previous env"
+                        exit 1
+                     fi  
+                  done
+           fi
+        
+
+        
