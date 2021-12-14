@@ -81,7 +81,8 @@ runs:
                         else
                               echo "${components[${cindex}]}:${tags[${cindex}]} is present in source env"
                         
-                    fi
+                         fi
+                      fi
                  done
            else
                  sourceenv_filepresent=$(aws s3 ls s3://${{ inputs.metadatabucket }}/${{ inputs.metadatapath }}/$sourcebuildfile || true)
