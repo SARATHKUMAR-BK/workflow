@@ -87,13 +87,13 @@ runs:
                       fi
                  done
            else
-                 sourceenv_filepresent=$(aws s3 ls s3://${{ inputs.metadatabucket }}/${{ inputs.metadatapath }}/$sourcebuildfile || true)
+                 sourceenv_filepresent=$(aws s3 ls s3://${{ inputs.bucket_name }}/${{ inputs.metadata_path }}/$sourcebuildfile || true)
                  if [[ "$sourceenv_filepresent" == "" ]]
                  then
                     echo "No deployments done in source env, Cannot promote stable builds . Can u please first promote to ${{ inputs.source_env }}"
                     exit 1
                  fi
-                  aws s3 cp s3://${{ inputs.metadatabucket }}/${{ inputs.metadatapath }}/$sourcebuildfile $sourcebuildfile 
+                  aws s3 cp s3://${{ inputs.bucket_name  }}/${{ inputs.metadata_path }}/$sourcebuildfile $sourcebuildfile 
                  for cindex in ${!components[@]}
                  do
                      component_present=`sed -n "/^${components[${cindex}]}:.*/p" $sourcebuildfile || true`
@@ -105,14 +105,14 @@ runs:
                   done        
            fi
            #-----------------------Target file creation -----------------------------------------------#
-            targetenv_filepresent=$(aws s3 ls s3://${{ inputs.metadatabucket }}/${{ inputs.metadatapath }}/$targetbuildfile || true)
+            targetenv_filepresent=$(aws s3 ls s3://${{ inputs.bucket_name }}/${{ inputs.metadata_path }}/$targetbuildfile || true)
             if [[ "$targetenv_filepresent" == "" ]]
             then
               echo "target env buile file not present, so target file is created now"
               touch "./${targetbuildfile}"
             else
               echo "taget env built file present"
-              aws s3 cp s3://${{ inputs.metadatabucket }}/${{ inputs.metadatapath }}/$targetbuildfile $targetbuildfile
+              aws s3 cp s3://${{ inputs.bucket_name }}/${{ inputs.metadata_path }}/$targetbuildfile $targetbuildfile
             fi
          done
 
