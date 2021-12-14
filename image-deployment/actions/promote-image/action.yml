@@ -69,7 +69,7 @@ runs:
                 do
                     echo "start"
                     repo_present=$(aws ecr describe-repositories --region=us-east-1  | jq -r .repositories[].repositoryName | grep -E "${{ inputs.source_aws_repo_prefix }}/${components[${cindex}]}$" || true)
-                    echo "end"
+                    echo "$repo_present  end"
                    if [[  "repo_present" == "" ]]
                     then
                         echo " is not there in source env" 
