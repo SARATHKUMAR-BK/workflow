@@ -68,15 +68,15 @@ runs:
                 for cindex in ${!components[@]}
                 do
                     echo "start"
-                    repo=$(aws ecr describe-repositories --region=us-east-1  | jq -r .repositories[].repositoryName | grep -E "${{ inputs.source_aws_repo_prefix }}/${components[${cindex}]}$" || true)
+                    repo_present=$(aws ecr describe-repositories --region=us-east-1  | jq -r .repositories[].repositoryName | grep -E "${{ inputs.source_aws_repo_prefix }}/${components[${cindex}]}$" || true)
                     echo "end"
                    if [[  "repo" == "" ]]
                     then
                         echo " is not there in source env" 
                         exit 1
                     else
-                        aws ecr describe-images --repository-name=${{ inputs.source_aws_repo_prefix }}/${components[${cindex}]} --image-ids=imageTag=${tags[${cindex}]} --region=us-east-1 &> /dev/null 
-                        if [ $? -ne 0 ]
+                        tag_present=$(aws ecr describe-images --repository-name=${{ inputs.source_aws_repo_prefix }}/${components[${cindex}]}  --query 'sort_by(imageDetails,& imagePushedAt)[*].imageTags[0]' --region=us-east-1 | grep "${tags[${cindex}]}" || true)
+                        if  [[  "tag_presen" == "" ]]
                         then
                             echo "${tags[${cindex}]} is not present in ${components[${cindex}]} " 
                             exit 1
