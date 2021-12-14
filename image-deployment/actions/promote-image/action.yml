@@ -70,13 +70,13 @@ runs:
                     echo "start"
                     repo_present=$(aws ecr describe-repositories --region=us-east-1  | jq -r .repositories[].repositoryName | grep -E "${{ inputs.source_aws_repo_prefix }}/${components[${cindex}]}$" || true)
                     echo "end"
-                   if [[  "repo" == "" ]]
+                   if [[  "repo_present" == "" ]]
                     then
                         echo " is not there in source env" 
                         exit 1
                     else
                         tag_present=$(aws ecr describe-images --repository-name=${{ inputs.source_aws_repo_prefix }}/${components[${cindex}]}  --query 'sort_by(imageDetails,& imagePushedAt)[*].imageTags[0]' --region=us-east-1 | grep "${tags[${cindex}]}" || true)
-                        if  [[  "tag_presen" == "" ]]
+                        if  [[  "tag_present" == "" ]]
                         then
                             echo "${tags[${cindex}]} is not present in ${components[${cindex}]} " 
                             exit 1
