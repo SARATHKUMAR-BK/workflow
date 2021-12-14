@@ -69,7 +69,7 @@ runs:
                 do
                     echo "start"
                     echo "${{ inputs.source_aws_repo_prefix }}/${components[${cindex}]}"
-                    aws ecr describe-repositories --region=us-east-1  | jq -r .repositories[].repositoryName | grep -E "kub-sic/terracotta-server9$"
+                    aws ecr describe-repositories --region=us-east-1  | jq -r .repositories[].repositoryName | grep -E "kub-sic/terracotta-server9$" || true
                     echo "end"
                     if [ $? -ne 0 ]
                     then
