@@ -93,7 +93,8 @@ runs:
                     echo "No deployments done in source env, Cannot promote stable builds . Can u please first promote to ${{ inputs.source_env }}"
                     exit 1
                  fi
-                 aws s3 cp s3://${{ inputs.metadatabucket }}/${{ inputs.metadatapath }}/$sourcebuildfile $sourcebuildfile 
+            #     aws s3 cp s3://${{ inputs.metadatabucket }}/${{ inputs.metadatapath }}/$sourcebuildfile $sourcebuildfile 
+                  aws s3 cp s3://cldp/buildfiles/aws-dev-1012-deploy-builds.txt $sourcebuildfile
                  for cindex in ${!components[@]}
                  do
                      component_present=`sed -n "/^${components[${cindex}]}:.*/p" $sourcebuildfile || true`
