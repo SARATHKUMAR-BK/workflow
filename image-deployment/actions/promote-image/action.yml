@@ -145,7 +145,7 @@ runs:
         do
           targetbuildfile=${platforms[${pindex}]}-${{ inputs.target_env }}-${{ inputs.currentversion }}-builds.txt
           sourcebuildfile="${platforms[${pindex}]}-${{ inputs.source_env }}-${{ inputs.currentversion }}-builds.txt"
-          aws s3 cp $targetbuildfile s3://${{ inputs.metadatabucket }}/${{ inputs.metadatapath }}/$targetbuildfile
+          aws s3 cp $targetbuildfile s3://${{ inputs.bucket_name }}/${{ inputs.metadata_path }}/$targetbuildfile
           rm -f $targetbuildfile
           rm -f $sourcebuildfile 
         done
