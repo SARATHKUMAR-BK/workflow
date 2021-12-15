@@ -31,16 +31,6 @@ jobs:
     steps:
        - uses: actions/checkout@v2
          name: Checkout the current repository
-       - name: Configure AWS Credentials for s3
-         uses: aws-actions/configure-aws-credentials@v1
-         with:
-          aws-access-key-id: ${{ secrets.ACCESSKEY }}
-          aws-secret-access-key: ${{ secrets.SECRETKEY }}
-          aws-region: ${{ secrets.AWS_REGION }}
-       -  name: ECR RnD Login
-          id: ecr-login
-          uses: aws-actions/amazon-ecr-login@v1
-          if: github.event.inputs.platform == 'aws' || github.event.inputs.platform == 'all'
        - name: AWS Preprod login
          uses: aws-actions/configure-aws-credentials@v1
          with:
@@ -52,11 +42,21 @@ jobs:
          id: ecr-preprod-login
          uses: aws-actions/amazon-ecr-login@v1
          if: github.event.inputs.target_env == 'preprod' && (github.event.inputs.platform == 'aws' || github.event.inputs.platform == 'all')
+       - name: Configure AWS Credentials for s3
+         uses: aws-actions/configure-aws-credentials@v1
+         with:
+          aws-access-key-id: ${{ secrets.ACCESSKEY }}
+          aws-secret-access-key: ${{ secrets.SECRETKEY }}
+          aws-region: ${{ secrets.AWS_REGION }}
+       -  name: ECR RnD Login
+          id: ecr-login
+          uses: aws-actions/amazon-ecr-login@v1
+          if: github.event.inputs.platform == 'aws' || github.event.inputs.platform == 'all'
        - name: promote-images
          shell: bash
          run: |
            echo "start"
-           # aws s3 ls s3://cldp/buildfiles/
+           aws s3 ls s3://cldp/buildfiles/
            echo "end"
            # aws ecr describe-repositories
            echo "${{ steps.ecr-login.outputs.registry }}"
