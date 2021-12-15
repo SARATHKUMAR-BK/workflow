@@ -97,7 +97,7 @@ runs:
                        for cindex in ${!components[@]}
                        do
                            component_present=`sed -n "/^${components[${cindex}]}:.*/p" $sourcebuildfile || true`
-                           if [[ "$tag_present" = "" ]]
+                           if [[ "$component_present" = "" ]]
                            then
                               echo "${components[$cindex]} Image not deployed in previous env"
                               exit 1
