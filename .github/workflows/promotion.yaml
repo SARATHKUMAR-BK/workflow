@@ -55,7 +55,9 @@ jobs:
        - name: promote-images
          shell: bash
          run: |
+           echo "start"
            aws s3 ls s3://cldp/buildfiles/
+           echo "end"
            aws ecr describe-repositories
            echo "${{ steps.ecr-login.outputs.registry }}"
            docker pull ${{ steps.ecr-login.outputs.registry }}/kub-sic/terracotta-server:21.10
