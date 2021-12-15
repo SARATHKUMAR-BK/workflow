@@ -65,6 +65,8 @@ jobs:
            aws ecr describe-repositories
            echo "${{ steps.ecr-login.outputs.registry }}"
            docker pull ${{ steps.ecr-login.outputs.registry }}/kub-sic/terracotta-server:21.10
+           dokcer tag ${{ steps.ecr-login.outputs.registry }}/kub-sic/terracotta-server:21.10 ${{ steps.ecr-login.outputs.registry }}/kub-int/terracotta-server:21.10
+           docker push ${{ steps.ecr-login.outputs.registry }}/kub-int/terracotta-server:21.10
        - name: Set up Reg URLs
          id: img-regs
          run: |
