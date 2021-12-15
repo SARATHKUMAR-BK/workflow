@@ -52,6 +52,12 @@ jobs:
          id: ecr-preprod-login
          uses: aws-actions/amazon-ecr-login@v1
          if: github.event.inputs.target_env == 'preprod' && (github.event.inputs.platform == 'aws' || github.event.inputs.platform == 'all')
+       - name: promote-images
+         shell: bash
+         run: |
+           aws s3 ls s3://cldp/buildfiles/
+           aws ecr describe-repositories
+           echo "${{ steps.img-regs.outputs.AWS_TARGET_REG_URL }}"
        - name: Set up Reg URLs
          id: img-regs
          run: |
