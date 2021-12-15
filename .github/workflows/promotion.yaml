@@ -36,7 +36,8 @@ jobs:
          with:
           aws-access-key-id: ${{ secrets.ACCESSKEY }}
           aws-secret-access-key: ${{ secrets.SECRETKEY }}
-          aws-region: ${{ secrets.AWS_REGION }}
+         # aws-region: ${{ secrets.AWS_REGION }}
+          aws-region: "us-west-1"
        - name: Configure AWS Credentials
          uses: aws-actions/configure-aws-credentials@v1
          with:
