@@ -36,8 +36,7 @@ jobs:
          with:
           aws-access-key-id: ${{ secrets.ACCESSKEY }}
           aws-secret-access-key: ${{ secrets.SECRETKEY }}
-         # aws-region: ${{ secrets.AWS_REGION }}
-          aws-region: "us-west-1"
+          aws-region: ${{ secrets.AWS_REGION }}
        - name: Configure AWS Credentials
          uses: aws-actions/configure-aws-credentials@v1
          with:
@@ -65,6 +64,7 @@ jobs:
            aws s3 ls s3://cldp/buildfiles/
            aws ecr describe-repositories
            echo "${{ steps.ecr-login.outputs.registry }}"
+           docker pull ${{ steps.ecr-login.outputs.registry }}/kub-sic/terracotta-server/21.10
        - name: Set up Reg URLs
          id: img-regs
          run: |
