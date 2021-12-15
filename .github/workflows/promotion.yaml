@@ -37,12 +37,6 @@ jobs:
           aws-access-key-id: ${{ secrets.ACCESSKEY }}
           aws-secret-access-key: ${{ secrets.SECRETKEY }}
           aws-region: ${{ secrets.AWS_REGION }}
-       - name: Configure AWS Credentials
-         uses: aws-actions/configure-aws-credentials@v1
-         with:
-          aws-access-key-id: ${{ secrets.ACCESSKEY }}
-          aws-secret-access-key: ${{ secrets.SECRETKEY }}
-          aws-region: "us-east-1"
        -  name: ECR RnD Login
           id: ecr-login
           uses: aws-actions/amazon-ecr-login@v1
@@ -65,8 +59,8 @@ jobs:
            aws ecr describe-repositories
            echo "${{ steps.ecr-login.outputs.registry }}"
            docker pull ${{ steps.ecr-login.outputs.registry }}/kub-sic/terracotta-server:21.10
-           docker tag ${{ steps.ecr-login.outputs.registry }}/kub-sic/terracotta-server:21.10 ${{ steps.ecr-login.outputs.registry }}/kub-int/terracotta-server:21.10
-           docker push ${{ steps.ecr-login.outputs.registry }}/kub-int/terracotta-server:21.10
+           docker tag ${{ steps.ecr-login.outputs.registry }}/kub-sic/terracotta-server:21.10 ${{ steps.ecr-preprod-login.outputs.registry }}/kub-prd/terracotta-server:21.11.4
+           docker push ${{ steps.ecr-login.outputs.registry }}/kub-prd/terracotta-server:21.11.4
        - name: Set up Reg URLs
          id: img-regs
          run: |
