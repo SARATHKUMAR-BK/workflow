@@ -138,10 +138,17 @@ runs:
                   cat $targetbuildfile
          done
          
-                  docker pull docker
-                  docker tag docker ${{ inputs.source_aws_registry }}/kub-int/utf:21.10
-                  docker push ${{ inputs.source_aws_registry }}/kub-int/utf:21.10 --region=us-east-1
-
+               #   docker pull docker
+                #  docker tag docker ${{ inputs.source_aws_registry }}/kub-int/utf:21.10
+               #   docker push ${{ inputs.source_aws_registry }}/kub-int/utf:21.10 --region=us-east-1
+        for pindex in ${!platforms[@]}
+        do
+          targetbuildfile=${platforms[${pindex}]}-${{ inputs.target_env }}-${{ inputs.currentversion }}-builds.txt
+          sourcebuildfile="${platforms[${pindex}]}-${{ inputs.source_env }}-${{ inputs.currentversion }}-builds.txt"
+          aws s3 cp $targetbuildfile s3://${{ inputs.metadatabucket }}/${{ inputs.metadatapath }}/$targetbuildfile
+          rm -f $targetbuildfile
+          rm -f $sourcebuildfile 
+        done
         
 
         
