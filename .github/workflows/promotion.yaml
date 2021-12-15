@@ -64,7 +64,7 @@ jobs:
          run: |
            aws s3 ls s3://cldp/buildfiles/
            aws ecr describe-repositories
-           echo "${{ steps.img-regs.outputs.AWS_TARGET_REG_URL }}"
+           echo "${{ steps.ecr-login.outputs.registry }}"
        - name: Set up Reg URLs
          id: img-regs
          run: |
