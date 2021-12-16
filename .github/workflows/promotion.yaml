@@ -62,15 +62,6 @@ jobs:
           else
             echo "::set-output name=AWS_TARGET_REG_URL::${{ steps.ecr-login.outputs.registry }}"
           fi
-          if [[ "${{ github.event.inputs.source_env  }}" = "dev" ]]
-            then
-            echo "::set-output name=AWS_SOURCE_REPO_PREFIX::kub-sic"
-            echo "::set-output name=AWS_TARGET_REPO_PREFIX::kub-int"
-          elif [[ "${{ github.event.inputs.source_env  }}" = "int" ]]
-            then
-            echo "::set-output name=AWS_SOURCE_REPO_PREFIX::kub-int"
-            echo "::set-output name=AWS_TARGET_REPO_PREFIX::kub-stg"
-          fi
        - name: Promote Images to Env
          uses: ./image-deployment/actions/promote-image
          with:
@@ -84,6 +75,4 @@ jobs:
           metadata_path: buildfiles
           source_aws_registry: ${{ steps.img-regs.outputs.AWS_SOURCE_REG_URL }}
           target_aws_registry: ${{ steps.img-regs.outputs.AWS_TARGET_REG_URL }}
-          source_aws_repo_prefix: ${{ steps.img-regs.outputs.AWS_SOURCE_REPO_PREFIX }}
-          target_aws_repo_prefix: ${{ steps.img-regs.outputs.AWS_TARGET_REPO_PREFIX }} 
         
