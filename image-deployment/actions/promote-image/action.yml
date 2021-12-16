@@ -62,7 +62,7 @@ runs:
                       for cindex in ${!components[@]}
                       do
                           echo "start"
-                          repo_present=$(aws ecr describe-repositories | jq -r .repositories[].repositoryName | grep -E "${components[${cindex}]}$" || true)
+                          repo_present=$(aws ecr describe-repositories | jq -r .repositories[].repositoryName | grep -E "^${components[${cindex}]}$" || true)
                           echo "*******$repo_present**********"
                          if [[  "$repo_present" == "" ]]
                           then
