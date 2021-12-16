@@ -31,12 +31,6 @@ inputs:
   target_aws_registry:
     description: Source AWS registry
     required: true
-  source_aws_repo_prefix:
-    description: Repo prefix for source AWS Repo
-    required: true
-  target_aws_repo_prefix:
-    description: Repo prefix for target AWS Repo
-    required: true
 runs:
   using: composite
   steps:
@@ -68,14 +62,14 @@ runs:
                       for cindex in ${!components[@]}
                       do
                           echo "start"
-                          repo_present=$(aws ecr describe-repositories --region=us-east-1  | jq -r .repositories[].repositoryName | grep -E "${{ inputs.source_aws_repo_prefix }}/${components[${cindex}]}$" || true)
-                          echo "$repo_present  end"
+                          repo_present=$(aws ecr describe-repositories --region=us-east-1  | jq -r .repositories[].repositoryName | grep -E "${components[${cindex}]}$" || true)
+                          echo "$repo_present"
                          if [[  "$repo_present" == "" ]]
                           then
                               echo " ${components[${cindex}]} is not there in source env" 
                               exit 1
                           else
-                              tag_present=$(aws ecr describe-images --repository-name=${{ inputs.source_aws_repo_prefix }}/${components[${cindex}]}  --query 'sort_by(imageDetails,& imagePushedAt)[*].imageTags[0]' --region=us-east-1 | grep "${tags[${cindex}]}" || true)
+                              tag_present=$(aws ecr describe-images --repository-name=${components[${cindex}]}  --query 'sort_by(imageDetails,& imagePushedAt)[*].imageTags[0]' --region=us-east-1 | grep "${tags[${cindex}]}" || true)
                               if  [[  "$tag_present" == "" ]]
                               then
                                   echo "${tags[${cindex}]} is not present in ${components[${cindex}]} " 
