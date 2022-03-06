@@ -80,3 +80,14 @@ jobs:
           source_aws_registry: ${{ steps.img-regs.outputs.AWS_SOURCE_REG_URL }}
           target_aws_registry: ${{ steps.img-regs.outputs.AWS_TARGET_REG_URL }}
         
+        
+       - name: AWS Preprod login
+         uses: aws-actions/configure-aws-credentials@v1
+         with:
+            aws-access-key-id: ${{ secrets.AWS_PREPROD_ACCESS_KEY }}
+            aws-secret-access-key: ${{ secrets.AWS_PREPROD_SECRET_KEY }}
+            aws-region: ${{ secrets.AWS_PREPROD_REGION }}
+       - name: ECR Preprod Login
+         uses: aws-actions/amazon-ecr-login@v1
+       - name: shell
+         run:  aws ecr describe-repositories | jq -r .repositories[].repositoryName
