@@ -71,7 +71,7 @@ runs:
             for component_index in ${!components[@]}
             do
               lookforcomponent=`sed -n "/^${components[${component_index}]}:/p" $deployment_file || true`
-              shaID=$(aws ecr describe-images --repository-name=kub-sic/${components[${component_index}]} --image-ids imageTag=${tags[${component_index}]}  | jq '.imageDetails[0].imageDigest' -r)
+              shaID=$(aws ecr describe-images --repository-name=${components[${component_index}]} --image-ids imageTag=${tags[${component_index}]}  | jq '.imageDetails[0].imageDigest' -r)
               if [[ "$lookforcomponent" = "" ]]
               then
                       echo "${components[${component_index}]}: ${tags[${component_index}]}: $shaID" >> $deployment_file
