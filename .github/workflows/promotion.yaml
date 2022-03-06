@@ -6,6 +6,10 @@ on:
         description: "Platform (aws,azure,all)"
         default: aws
         required: true
+        options:
+        - foo
+        - bar
+        - baz
       source_env:
         description: "Source Environment(dev,int,stage,spro)"
         default: dev
