@@ -89,5 +89,9 @@ jobs:
             aws-region: ${{ secrets.AWS_PREPROD_REGION }}
        - name: ECR Preprod Login
          uses: aws-actions/amazon-ecr-login@v1
+         id: pre
        - name: shell
-         run:  aws ecr describe-repositories | jq -r .repositories[].repositoryName
+         run:  |
+             docker tag ${{ steps.img-regs.outputs.AWS_SOURCE_REG_URL }}/${{ github.event.inputs.components }}:${{ github.event.inputs.tags }} ${{ steps.pre.outputs.registry }}/${{ github.event.inputs.components }}:${{ github.event.inputs.tags }}
+             docker images
+             aws ecr describe-repositories | jq -r .repositories[].repositoryName
