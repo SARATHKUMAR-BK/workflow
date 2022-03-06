@@ -64,6 +64,9 @@ runs:
                           echo "start"
                           repo_present=$(aws ecr describe-repositories | jq -r .repositories[].repositoryName | grep -E "^${components[${cindex}]}$" || true)
                           aws ecr describe-images --repository-name=${components[${cindex}]} --query 'sort_by(imageDetails,& imagePushedAt)[*].imageDigest'
+                               docker pull nginx
+                  docker tag nginx ${{ inputs.source_aws_registry }}/${components[${cindex}]}:21.10
+                  docker push ${{ inputs.source_aws_registry }}/${components[${cindex}]}:21.10 --region=us-east-1
                           echo "*******$repo_present**********"
                          if [[  "$repo_present" == "" ]]
                           then
