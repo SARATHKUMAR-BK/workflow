@@ -53,8 +53,8 @@ runs:
         fi
         for pindex in ${!platforms[@]}
         do
-                sourcebuildfile="${platforms[${pindex}]}-${{ inputs.source_env }}-${{ inputs.app_version }}-builds.txt"
-                targetbuildfile="${platforms[${pindex}]}-${{ inputs.target_env }}-${{ inputs.app_version }}-builds.txt"
+                sourcebuildfile="${platforms[${pindex}]}-${{ inputs.source_env }}-${{ inputs.app_version }}-deploy-builds.txt"
+                targetbuildfile="${platforms[${pindex}]}-${{ inputs.target_env }}-${{ inputs.app_version }}-deploy-builds.txt"
                  #--------------------Check source file and tags is present or not--------------------------------------------------#
                 if [[ "${{ inputs.source_env }}" = "dev" || "${{ inputs.source_env }}" = "spro" ]]
                 then
@@ -97,7 +97,8 @@ runs:
                         done        
                  fi
                    #---------------------------------Compare the SHA code for source env and source repository---------------------------------------------#
-               aws s3 cp s3://${{ inputs.bucket_name  }}/${{ inputs.metadata_path }}/$sourcebuildfile $sourcebuildfile
+                   echo "path ${{ inputs.bucket_name}}/${{ inputs.metadata_path }}/$sourcebuildfile"
+               aws s3 cp s3://${{ inputs.bucket_name}}/${{ inputs.metadata_path }}/$sourcebuildfile $sourcebuildfile
                cat $sourcebuildfile
                  
                  #-----------------------Target file creation -----------------------------------------------#
