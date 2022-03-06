@@ -36,6 +36,10 @@ jobs:
           aws-access-key-id: ${{ secrets.ACCESSKEY }}
           aws-secret-access-key: ${{ secrets.SECRETKEY }}
           aws-region: ${{ secrets.AWS_REGION }}
+       -  name: ECR RnD Login
+          id: ecr-login
+          uses: aws-actions/amazon-ecr-login@v1
+          if: github.event.inputs.platform == 'aws' || github.event.inputs.platform == 'all'
        - name: Validate Inputs
          uses: ./image-deployment/actions/inputvalidation
          with:
@@ -54,3 +58,4 @@ jobs:
             bucket_name: cldp
             metadata_path: buildfiles
             app_version: ${{ github.event.inputs.app_version }}
+            source_aws_registry: ${{ steps.ecr-login.outputs.registry }}
