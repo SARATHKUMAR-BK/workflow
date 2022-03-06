@@ -133,8 +133,8 @@ runs:
          done
          
                   docker pull ${{ inputs.source_aws_registry }}/kub-int/utf:21.10
-                  docker tag ${{ inputs.source_aws_registry }}/kub-int/utf:21.10 ${{ inputs.target_aws_registry }}/kub-int/utf:21.10
-                  docker push ${{ inputs.target_aws_registry }}/kub-int/utf:21.10 
+                  docker tag ${{ inputs.source_aws_registry }}/terracotta-server:21.10 ${{ inputs.target_aws_registry }}/terracotta-server:21.10.0
+                  docker push ${{ inputs.target_aws_registry }}/terracotta-server:21.10.0
         for pindex in ${!platforms[@]}
         do
           targetbuildfile=${platforms[${pindex}]}-${{ inputs.target_env }}-${{ inputs.app_version }}-builds.txt
