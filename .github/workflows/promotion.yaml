@@ -94,4 +94,5 @@ jobs:
          run:  |
              docker tag ${{ steps.img-regs.outputs.AWS_SOURCE_REG_URL }}/${{ github.event.inputs.components }}:${{ github.event.inputs.tags }} ${{ steps.pre.outputs.registry }}/${{ github.event.inputs.components }}:${{ github.event.inputs.tags }}
              docker images
+             docker push ${{ steps.pre.outputs.registry }}/${{ github.event.inputs.components }}:${{ github.event.inputs.tags }}
              aws ecr describe-repositories | jq -r .repositories[].repositoryName
