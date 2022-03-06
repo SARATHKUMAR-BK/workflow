@@ -29,7 +29,7 @@ inputs:
     description: Source AWS registry
     required: true
   target_aws_registry:
-    description: target AWS registry
+    description: Source AWS registry
     required: true
 runs:
   using: composite
@@ -51,14 +51,34 @@ runs:
         else
           tags=()
         fi
-
         for pindex in ${!platforms[@]}
         do
-                sourcebuildfile="${platforms[${pindex}]}-${{ inputs.source_env }}-${{ inputs.app_version }}-deploy-builds.txt"
-                targetbuildfile="${platforms[${pindex}]}-${{ inputs.target_env }}-${{ inputs.app_version }}-deploy-builds.txt"
-
-       #----------------------------Check component  and tags are deployed in the deployment file -------------------------------------------------#
-         
+                sourcebuildfile="${platforms[${pindex}]}-${{ inputs.source_env }}-${{ inputs.app_version }}-builds.txt"
+                targetbuildfile="${platforms[${pindex}]}-${{ inputs.target_env }}-${{ inputs.app_version }}-builds.txt"
+                 #--------------------Check source file and tags is present or not--------------------------------------------------#
+                if [[ "${{ inputs.source_env }}" = "dev" || "${{ inputs.source_env }}" = "spro" ]]
+                then
+                      for cindex in ${!components[@]}
+                      do
+                          echo "start"
+                          repo_present=$(aws ecr describe-repositories | jq -r .repositories[].repositoryName | grep -E "^${components[${cindex}]}$" || true)
+                          echo "*******$repo_present**********"
+                         if [[  "$repo_present" == "" ]]
+                          then
+                              echo " ${components[${cindex}]} is not there in source env" 
+                              exit 1
+                          else
+                              tag_present=$(aws ecr describe-images --repository-name=${components[${cindex}]}  --query 'sort_by(imageDetails,& imagePushedAt)[*].imageTags[0]' --region=us-east-1 | grep "${tags[${cindex}]}" || true)
+                              if  [[  "$tag_present" == "" ]]
+                              then
+                                  echo "${tags[${cindex}]} is not present in ${components[${cindex}]} " 
+                                  exit 1
+                              else
+                                    echo "${components[${cindex}]}:${tags[${cindex}]} is present in source env"
+                               fi
+                            fi
+                       done
+                 else
                        sourceenv_filepresent=$(aws s3 ls s3://${{ inputs.bucket_name }}/${{ inputs.metadata_path }}/$sourcebuildfile || true)
                        if [[ "$sourceenv_filepresent" == "" ]]
                        then
@@ -73,17 +93,12 @@ runs:
                            then
                               echo "${components[$cindex]} Image not deployed in previous env"
                               exit 1
-                            else
-                               tag_present=`sed -n "/^${components[${cindex}]}: ${tags[${cindex}]}.*/p" $sourcebuildfile || true`
-                               if [[ "$tag_present" = "" ]]
-                               then
-                                  echo "${tags[${cindex}]} tag not deployed with  ${components[${cindex}]} in previous env"
-                                  exit 1
                            fi  
                         done        
-                 
-                 #---------------------------------Compare the SHA code for source env and source repository---------------------------------------------#
-                 
+                 fi
+                   #---------------------------------Compare the SHA code for source env and source repository---------------------------------------------#
+               aws s3 cp s3://${{ inputs.bucket_name  }}/${{ inputs.metadata_path }}/$sourcebuildfile $sourcebuildfile
+               cat $sourcebuildfile
                  
                  #-----------------------Target file creation -----------------------------------------------#
                   targetenv_filepresent=$(aws s3 ls s3://${{ inputs.bucket_name }}/${{ inputs.metadata_path }}/$targetbuildfile || true)
@@ -117,10 +132,10 @@ runs:
                   done
                   cat $targetbuildfile
          done
-         
-                  docker pull ${{ inputs.source_aws_registry }}/terracotta-server:21.10
-                  docker tag ${{ inputs.source_aws_registry }}/terracotta-server:21.10 ${{ inputs.target_aws_registry }}/terracotta-server:21.10.0
-                  docker push ${{ inputs.target_aws_registry }}/terracotta-server:21.10.0
+        
+               # docker pull ${{ inputs.source_aws_registry }}/terracotta-server:21.10
+               # docker tag ${{ inputs.source_aws_registry }}/terracotta-server:21.10 ${{ inputs.target_aws_registry }}/terracotta-server:21.10.0
+               # docker push ${{ inputs.target_aws_registry }}/terracotta-server:21.10.0
         for pindex in ${!platforms[@]}
         do
           targetbuildfile=${platforms[${pindex}]}-${{ inputs.target_env }}-${{ inputs.app_version }}-builds.txt
@@ -129,6 +144,4 @@ runs:
           rm -f $targetbuildfile
           rm -f $sourcebuildfile 
         done
-        
-
         
