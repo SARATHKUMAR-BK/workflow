@@ -146,8 +146,12 @@ runs:
                   done
                   cat $targetbuildfile
          done
+                  for cindex in ${!components[@]}
+                  do
         
-               # docker pull ${{ inputs.source_aws_registry }}/terracotta-server:21.10
+                     docker pull ${{ inputs.source_aws_registry }}/${components[${cindex}]}:${tags[${cindex}]}
+                   done
+                   docker images
                # docker tag ${{ inputs.source_aws_registry }}/terracotta-server:21.10 ${{ inputs.target_aws_registry }}/terracotta-server:21.10.0
                # docker push ${{ inputs.target_aws_registry }}/terracotta-server:21.10.0
         for pindex in ${!platforms[@]}
