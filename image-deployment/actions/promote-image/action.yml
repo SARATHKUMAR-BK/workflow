@@ -78,81 +78,8 @@ runs:
                                     echo "${components[${cindex}]}:${tags[${cindex}]} is present in source env repository"
 
                                fi
-                            fi
+                           fi
                        done
                  fi
-         #----------------------------Check component  and tags are deployed in the deployment file -------------------------------------------------#
-         
-                       sourceenv_filepresent=$(aws s3 ls s3://${{ inputs.bucket_name }}/${{ inputs.metadata_path }}/$sourcebuildfile || true)
-                       if [[ "$sourceenv_filepresent" == "" ]]
-                       then
-                          echo "No deployments done in source env, Cannot promote stable builds . Can u please first promote to ${{ inputs.source_env }}"
-                          exit 1
-                       fi
-                        aws s3 cp s3://${{ inputs.bucket_name  }}/${{ inputs.metadata_path }}/$sourcebuildfile $sourcebuildfile 
-                       for cindex in ${!components[@]}
-                       do
-                           component_present=`sed -n "/^${components[${cindex}]}:.*/p" $sourcebuildfile || true`
-                           if [[ "$component_present" = "" ]]
-                           then
-                              echo "${components[$cindex]} Image not deployed in previous env"
-                              exit 1
-                            else
-                               tag_present=`sed -n "/^${components[${cindex}]}: ${tags[${cindex}]}.*/p" $sourcebuildfile || true`
-                               if [[ "$tag_present" = "" ]]
-                               then
-                                  echo "${tags[${cindex}]} tag not deployed with  ${components[${cindex}]} in previous env"
-                                  exit 1
-                           fi  
-                        done        
-                 
-                 #---------------------------------Compare the SHA code for source env and source repository---------------------------------------------#
-                 
-                 
-                 #-----------------------Target file creation -----------------------------------------------#
-                  targetenv_filepresent=$(aws s3 ls s3://${{ inputs.bucket_name }}/${{ inputs.metadata_path }}/$targetbuildfile || true)
-                  if [[ "$targetenv_filepresent" == "" ]]
-                  then
-                    echo "target env buile file not present, so target file is created now"
-                    touch "./${targetbuildfile}"
-                  else
-                    echo "taget env built file present"
-                    aws s3 cp s3://${{ inputs.bucket_name }}/${{ inputs.metadata_path }}/$targetbuildfile $targetbuildfile
-                  fi
-                  
-                  #------------------Target file is updated ------------------------------------------------#
-                  for cindex in ${!components[@]}
-                  do
-                    if [[ "${{ inputs.source_env }}" = "dev" || "${{ inputs.source_env }}" = "spro" ]]
-                    then
-                        component_tag=${tags[${cindex}]}
-                    else
-                        component_tag=$(sed -n "/^${components[${cindex}]}:.*/p" $sourcebuildfile | awk '{print $2}' | tr -d [:space:])
-                    fi
-                    target_tag_present=`sed -n "/^${components[${cindex}]}:.*/p" $targetbuildfile || true`
-                    if [[ "$target_tag_present" = "" ]]
-                    then
-                      echo "tag for ${components[${cindex}]} not present in target file add it"
-                      echo "${components[${cindex}]}: $component_tag" >> $targetbuildfile
-                    else
-                      echo "tag for ${components[${cindex}]} present in target file changing it"
-                      sed -i "s/${components[${cindex}]}:.*/${components[${cindex}]}: $component_tag/g" $targetbuildfile
-                    fi
-                  done
-                  cat $targetbuildfile
-         done
-         
-                  docker pull ${{ inputs.source_aws_registry }}/terracotta-server:21.10
-                  docker tag ${{ inputs.source_aws_registry }}/terracotta-server:21.10 ${{ inputs.target_aws_registry }}/terracotta-server:21.10.0
-                  docker push ${{ inputs.target_aws_registry }}/terracotta-server:21.10.0
-        for pindex in ${!platforms[@]}
-        do
-          targetbuildfile=${platforms[${pindex}]}-${{ inputs.target_env }}-${{ inputs.app_version }}-builds.txt
-          sourcebuildfile="${platforms[${pindex}]}-${{ inputs.source_env }}-${{ inputs.app_version }}-builds.txt"
-          aws s3 cp $targetbuildfile s3://${{ inputs.bucket_name }}/${{ inputs.metadata_path }}/$targetbuildfile
-          rm -f $targetbuildfile
-          rm -f $sourcebuildfile 
-        done
-        
-
+    done
         
