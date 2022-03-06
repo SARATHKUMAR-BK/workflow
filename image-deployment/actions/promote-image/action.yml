@@ -54,9 +54,9 @@ runs:
 
         for pindex in ${!platforms[@]}
         do
-                sourcebuildfile="${platforms[${pindex}]}-${{ inputs.source_env }}-${{ inputs.app_version }}-builds.txt"
-                targetbuildfile="${platforms[${pindex}]}-${{ inputs.target_env }}-${{ inputs.app_version }}-builds.txt"
-                 #--------------------Check source file and tags is present or not--------------------------------------------------#
+                sourcebuildfile="${platforms[${pindex}]}-${{ inputs.source_env }}-${{ inputs.app_version }}-deploy-builds.txt"
+                targetbuildfile="${platforms[${pindex}]}-${{ inputs.target_env }}-${{ inputs.app_version }}-deploy-builds.txt"
+                 #--------------------Check component and tags is present or not in repository--------------------------------------------------#
                 if [[ "${{ inputs.source_env }}" = "dev" || "${{ inputs.source_env }}" = "spro" ]]
                 then
                       for cindex in ${!components[@]}
@@ -66,21 +66,23 @@ runs:
                           echo "*******$repo_present**********"
                          if [[  "$repo_present" == "" ]]
                           then
-                              echo " ${components[${cindex}]} is not there in source env" 
+                              echo " ${components[${cindex}]} is not there in source env repository" 
                               exit 1
                           else
                               tag_present=$(aws ecr describe-images --repository-name=${components[${cindex}]}  --query 'sort_by(imageDetails,& imagePushedAt)[*].imageTags[0]' --region=us-east-1 | grep "${tags[${cindex}]}" || true)
                               if  [[  "$tag_present" == "" ]]
                               then
-                                  echo "${tags[${cindex}]} is not present in ${components[${cindex}]} " 
+                                  echo "${tags[${cindex}]} is not present for ${components[${cindex}]} in source env repository" 
                                   exit 1
                               else
-                                    echo "${components[${cindex}]}:${tags[${cindex}]} is present in source env"
+                                    echo "${components[${cindex}]}:${tags[${cindex}]} is present in source env repository"
 
                                fi
                             fi
                        done
-                 else
+                 fi
+         #----------------------------Check component  and tags are deployed in the deployment file -------------------------------------------------#
+         
                        sourceenv_filepresent=$(aws s3 ls s3://${{ inputs.bucket_name }}/${{ inputs.metadata_path }}/$sourcebuildfile || true)
                        if [[ "$sourceenv_filepresent" == "" ]]
                        then
@@ -95,9 +97,17 @@ runs:
                            then
                               echo "${components[$cindex]} Image not deployed in previous env"
                               exit 1
+                            else
+                               tag_present=`sed -n "/^${components[${cindex}]}: ${tags[${cindex}]}.*/p" $sourcebuildfile || true`
+                               if [[ "$tag_present" = "" ]]
+                               then
+                                  echo "${tags[${cindex}]} tag not deployed with  ${components[${cindex}]} in previous env"
+                                  exit 1
                            fi  
                         done        
-                 fi
+                 
+                 #---------------------------------Compare the SHA code for source env and source repository---------------------------------------------#
+                 
                  
                  #-----------------------Target file creation -----------------------------------------------#
                   targetenv_filepresent=$(aws s3 ls s3://${{ inputs.bucket_name }}/${{ inputs.metadata_path }}/$targetbuildfile || true)
