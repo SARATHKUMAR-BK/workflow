@@ -40,14 +40,14 @@ jobs:
           id: ecr-login
           uses: aws-actions/amazon-ecr-login@v1
           if: github.event.inputs.platform == 'aws' || github.event.inputs.platform == 'all'
-       - name: Validate Inputs
-         uses: ./image-deployment/actions/inputvalidation
-         with:
-            target_env: ${{ github.event.inputs.target_env }}
-            component: ${{ github.event.inputs.component }}
-            tag: ${{ github.event.inputs.tag }}
-            platform: ${{ github.event.inputs.platform }}
-            app_version: ${{ github.event.inputs.currentversion }}
+       # name: Validate Inputs
+       # uses: ./image-deployment/actions/inputvalidation
+       # with:
+       #    target_env: ${{ github.event.inputs.target_env }}
+       #    component: ${{ github.event.inputs.component }}
+       #    tag: ${{ github.event.inputs.tag }}
+       #    platform: ${{ github.event.inputs.platform }}
+       #    app_version: ${{ github.event.inputs.currentversion }}
        - name: Deployement Process
          uses: ./image-deployment/actions/deploy-image
          with: 
