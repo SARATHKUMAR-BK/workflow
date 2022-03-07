@@ -70,7 +70,7 @@ jobs:
          id: img-regs
          run: |
           aws s3 ls s3://cldp/buildfiles/
-          docker pull ${{ steps.ecr-login.outputs.registry }}/lj:10.12
+          docker pull ${{ steps.ecr-login.outputs.registry }}/lj:22.04
           docker pull ${{ steps.ecr-preprod-login.outputs.registry }}/b2b/webmethods-b2b:10.12.0
           aws ecr describe-repositories --registry-id=598608222025       
           
