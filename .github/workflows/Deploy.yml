@@ -33,6 +33,7 @@ jobs:
        - name: variable
          run: |
             s=${{ github.event.inputs.target_env }}
+             echo "$s"
        - name: using the var
          run: echo "$s"
          
