@@ -72,7 +72,7 @@ jobs:
           aws s3 ls s3://cldp/buildfiles/
           docker pull ${{ steps.ecr-login.outputs.registry }}/lj:10.12
           docker pull ${{ steps.ecr-preprod-login.outputs.registry }}/b2b/webmethods-b2b:10.12.0
-          aws ecr describe-images
+          aws ecr describe-repositories
           
           echo "::set-output name=AWS_SOURCE_REG_URL::${{ steps.ecr-login.outputs.registry }}"
           if [[ github.event.inputs.target_env == 'preprod' ]]
