@@ -76,6 +76,7 @@ jobs:
           else
             echo "::set-output name=AWS_TARGET_REG_URL::${{ steps.ecr-login.outputs.registry }}"
           fi
+          docker pull ${{ steps.img-regs.outputs.AWS_SOURCE_REG_URL }}/terracotta-server:21.10
        - name: Promote Images to Env
          uses: ./image-deployment/actions/promote-image
          with:
