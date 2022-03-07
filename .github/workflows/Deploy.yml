@@ -58,10 +58,11 @@ jobs:
        #    tag: ${{ github.event.inputs.tag }}
        #    platform: ${{ github.event.inputs.platform }}
        #    app_version: ${{ github.event.inputs.currentversion }}
-       - name: shell
-         run: |
-            s=$(docker pull ${{ steps.ecr-login.outputs.registry }}/terracotta-server:222 || true)
-            echo $s
+      #- name: shell
+      #  run: |
+      #     s=$(docker pull ${{ steps.ecr-login.outputs.registry }}/terracotta-server:222 || true)
+      #     echo $s
+            
        - name: Deployement Process
          uses: ./image-deployment/actions/deploy-image
          with: 
