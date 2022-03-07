@@ -30,6 +30,11 @@ jobs:
       steps:
        - uses: actions/checkout@v2
          name: Checkout the current repository
+       - name: variable
+         run: |
+            s=${{ github.event.inputs.target_env }}
+       - name: using the var
+         run: echo "$s"
          
        - name: Configure AWS Credentials for s3
          uses: aws-actions/configure-aws-credentials@v1
