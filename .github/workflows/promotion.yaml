@@ -79,7 +79,7 @@ jobs:
           fi
        - name: Set up Reg URLs
          run: |         
-             docker pull ${{ steps.img-regs.outputs.AWS_TARGET_REG_URL }}/cldp/cldp-is:10.5.22.04
+             docker pull ${{ steps.ecr-preprod-login.outputs.registry }}/cldp/cldp-is:10.5.22.04
            #  docker tag  ${{ steps.img-regs.outputs.AWS_SOURCE_REG_URL }}/terracotta-server:21.10 ${{ steps.img-regs.outputs.AWS_TARGET_REG_URL }}/terracotta-server:21.10
          #    docker push ${{ steps.img-regs.outputs.AWS_TARGET_REG_URL }}/terracotta-server:21.10
        - name: Promote Images to Env
