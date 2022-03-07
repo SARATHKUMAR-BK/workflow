@@ -22,7 +22,7 @@ runs:
     - name: Validate Inputs
       run: |
         valid_env=(dev spro int stage)
-        valid_components=(integration-server universal-messaging)
+        valid_components=("integration-server: 10.5.22.04" "integration-server: 10.11.22.04" "universal-messaging: 10.5.22.04" "universal-messaging: 10.11.22.04")
         valid_platform=(aws azure all)
         if [[ ! (" ${valid_env[*]} " =~ " ${{inputs.target_env}} ") ]]
         then
@@ -35,22 +35,18 @@ runs:
           exit 1
         fi
         IFS="," read -a components <<< ${{ inputs.component }}
+        IFS="," read -a tags <<< ${{ inputs.tag }}
+        if [[ ${#components[@]} -ne ${#tags[@]} ]]
+        then
+          echo "Image and tags count are mismatching , Pls provide crt image and tag pair"
+          exit 1
+        fi
         for cldp_component in ${!components[@]}
         do
-          if [[ ! (" ${valid_components[*]} " =~ " ${components[$cldp_component]} ") ]]
+          if [[ ! (" ${valid_components[*]} " =~ " ${components[$cldp_component]}: ${tags[$cldp_component]} ") ]]
           then
             echo "Invalid Components ${components[$cldp_component]}"
             exit 1 
-          else
-             echo "$cldp_component"
           fi 
         done
-        IFS="," read -a tags <<< ${{ inputs.tag }}
-          if [[ ${#components[@]} -ne ${#tags[@]} ]]
-          then
-            echo "Invalid Tags and Image pairs"
-            echo ${components[@]}
-            echo ${tags[@]}
-            exit 1
-          fi
       shell: bash
