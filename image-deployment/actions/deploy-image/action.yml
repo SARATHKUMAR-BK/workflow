@@ -59,8 +59,6 @@ runs:
       echo "${components[@]}"
       echo "${tags[@]}"
       echo " "
-      if [[ "${{ inputs.target_env }}" = "dev" || "${{ inputs.target_env }}" = "spro" ]]
-        then
           for platforms_index in ${!platforms[@]} 
           do
             deployment_file="${platforms[${platforms_index}]}-${{ inputs.target_env }}-${{ inputs.app_version }}-deploy-builds.txt"
@@ -71,56 +69,39 @@ runs:
             else
               aws s3 cp s3://${{inputs.bucket_name}}/${{inputs.metadata_path}}/$deployment_file $deployment_file
             fi
+            
+            
             for component_index in ${!components[@]}
             do
-              lookforcomponent=`sed -n "/^${components[${component_index}]}:/p" $deployment_file || true`
-               docker pull ${{ inputs.source_aws_registry }}/${components[${cindex}]}:${tags[${cindex}]}
-                   shaID=`docker inspect --format='{{.RepoDigests}}' ${{ inputs.source_aws_registry }}/${components[${cindex}]}:${tags[${cindex}]}  | sed 's:^.\(.*\).$:\1:' | tr " " "\n" | grep ${{ inputs.source_aws_registry }}/${components[${cindex}]}  | cut -d "@" -f 2`
-                
-             # shaID=$(aws ecr describe-images --repository-name=${components[${component_index}]} --image-ids imageTag=${tags[${component_index}]}  | jq '.imageDetails[0].imageDigest' -r)
-              if [[ "$lookforcomponent" = "" ]]
+              lookforcomponent=`sed -n "/^${components[${component_index}]}: ${tags[${component_index}]}.*/p" $deployment_file || true`
+              
+            if [[ "$lookforcomponent" = "" ]]
               then
+                      shaID=$(grep -i "${components[${component_index}]}: ${tags[${component_index}]}" shafile.txt | cut -d " " -f 3)
+                      echo "SHAID : $shaID"
                       echo "${components[${component_index}]}: ${tags[${component_index}]}: $shaID" >> $deployment_file
               else
                       sed -i "s/${components[${component_index}]}: ${tags[${component_index}]}.*/${components[${component_index}]}: ${tags[${component_index}]}: $shaID/g" $deployment_file
               fi
             done
           done
-        else
-          for platform_index in ${!platforms[@]}
-          do
-            deployment_file="${platforms[${platform_index}]}-${{ inputs.target_env }}-${{ inputs.app_version }}-deploy-builds.txt"
-            aws s3 cp s3://${{inputs.bucket_name}}/${{inputs.metadata_path}}/$deployment_file $deployment_file
-          done
-        fi
+
         
         
         #------------------------------------------------------------------------------Start deploying to environment------------------------------------------------------------------------------
         datelabel=$(TZ=IST-5:30 date | sed 's/ /-/g')
         for platform_index in ${!platforms[@]}
         do
-          image_components=()
-          image_tags=()
-          deployment_file="${platforms[${platform_index}]}-${{ inputs.target_env }}-${{ inputs.app_version }}-deploy-builds.txt"
-          for component_index in ${!components[@]}
-          do
-            image_components+=($(sed -n "/^${components[${component_index}]}:/p" $deployment_file | awk -F ':' '{print $1}' | tr -d [:space:]))
-            image_tags+=($(sed -n "/^${components[${component_index}]}:/p" $deployment_file | awk '{print $2}' | tr -d [:space:]))
-          done
-          echo "Deployment Images to  ${platforms[$platform_index]} for ${{ inputs.target_env }} environment"
-          echo ${image_components[@]}
-          echo ${image_tags[@]}
-          add_component_seperator=$(IFS=',';echo "${image_components[*]}")
-           echo ${add_component_seperator[@]}
-        # refresh_components = a,b,c,d...  10.11,10.12,10.13,....
-          add_tag_seperator=$(IFS=',';echo "${image_tags[*]}")
-          echo ${add_tag_seperator[@]}
+
           chmod 777 ./image-deployment/actions/deploy-image/dep.sh
           bash ./image-deployment/actions/deploy-image/dep.sh
-          if [[  "${{ inputs.target_env }}" = "dev" || "${{ inputs.target_env }}" = "spro" ]]
-          then
-            aws s3 cp $deployment_file s3://${{inputs.bucket_name}}/${{inputs.metadata_path}}/$deployment_file
-          fi
+
+          aws s3 cp $deployment_file s3://${{inputs.bucket_name}}/${{inputs.metadata_path}}/$deployment_file
           aws s3 cp $deployment_file s3://${{inputs.bucket_name}}/${{inputs.metadata_path}}/${datelabel}-${platforms[$b2b_platform]}-${{ inputs.target_env }}-${{ inputs.app_version }}-deploy-builds.txt
-        done
+       
+           rm -rf shafile.txt
+          rm -rf deployment_file
+          cat shafile.txt
+          cat deployment_file
+       done
     shell: bash
