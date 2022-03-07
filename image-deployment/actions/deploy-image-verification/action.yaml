@@ -24,6 +24,8 @@ runs:
         tags=($(echo ${{ inputs.tag }} | sed -e 's\,\ \g'))
         echo "$tags"
         touch ./shafile.txt
+        echo "AWS REPO: ${{ inputs.source_aws_repo_prefix }}"
+        echo "AWS registry: ${{ inputs.source_aws_registry }}"
         for cldp_component in ${!components[@]}
             do
               echo "AWS REPO: ${{ inputs.source_aws_repo_prefix }}"
