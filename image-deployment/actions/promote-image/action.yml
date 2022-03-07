@@ -118,20 +118,15 @@ runs:
                   #------------------Target file is updated ------------------------------------------------#
                   for cindex in ${!components[@]}
                   do
-                    if [[ "${{ inputs.source_env }}" = "dev" || "${{ inputs.source_env }}" = "spro" ]]
-                    then
-                        component_tag=${tags[${cindex}]}
-                    else
-                        component_tag=$(sed -n "/^${components[${cindex}]}:.*/p" $sourcebuildfile | awk '{print $2}' | tr -d [:space:])
-                    fi
-                    target_tag_present=`sed -n "/^${components[${cindex}]}:.*/p" $targetbuildfile || true`
+                    target_tag_present=`sed -n "/^${components[${cindex}]}: ${tags[${cindex}]}.*/p" $targetbuildfile || true`
+                   sha_in_repo=`docker inspect --format='{{.RepoDigests}}' ${{ inputs.source_aws_registry }}/${components[${cindex}]}:${tags[${cindex}]}  | sed 's:^.\(.*\).$:\1:' | tr " " "\n" | grep ${{ inputs.source_aws_registry }}/${components[${cindex}]}  | cut -d "@" -f 2`
                     if [[ "$target_tag_present" = "" ]]
                     then
                       echo "tag for ${components[${cindex}]} not present in target file add it"
-                      echo "${components[${cindex}]}: $component_tag" >> $targetbuildfile
+                      echo "${components[${cindex}]}: ${tags[${cindex}]}: $sha_in_repo" >> $targetbuildfile
                     else
                       echo "tag for ${components[${cindex}]} present in target file changing it"
-                      sed -i "s/${components[${cindex}]}:.*/${components[${cindex}]}: $component_tag/g" $targetbuildfile
+                      sed -i "s/${components[${cindex}]}: ${tags[${cindex}]}.*/${components[${cindex}]}: ${tags[${cindex}]}: $sha_in_repo/g" $targetbuildfile
                     fi
                   done
                   cat $targetbuildfile
