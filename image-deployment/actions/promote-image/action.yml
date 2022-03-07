@@ -138,6 +138,7 @@ runs:
  
                      docker tag ${{ inputs.source_aws_registry }}/${components[${cindex}]}:${tags[${cindex}]} ${{ inputs.target_aws_registry }}/${components[${cindex}]}:${tags[${cindex}]}
                       docker push ${{ inputs.target_aws_registry }}/${components[${cindex}]}:${tags[${cindex}]}
+                  done
         for pindex in ${!platforms[@]}
         do
           targetbuildfile=${platforms[${pindex}]}-${{ inputs.target_env }}-${{ inputs.app_version }}-deploy-builds.txt
