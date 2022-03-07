@@ -7,15 +7,15 @@ on:
         default: aws
         required: true
       source_env:
-        description: "Source Environment(dev,int,stage,spro)"
+        description: "Source Environment(dev spro int stage preprod)"
         default: dev
         required: true
       target_env:
-        description: "Target Environment(int,stage,preprod)"
+        description: "Target Environment(int stage preprod prod)"
         default: int
         required: true
       components:
-        description: "Components to promote (universal-messaging,terracotta-server)"
+        description: "Components to promote (""integration-server: 10.5.22.04" "integration-server: 10.7.22.04" "integration-server: 10.11.22.04" "universal-messaging: 10.5.22.04" "universal-messaging: 10.7.22.04" "universal-messaging: 10.11.22.04" "terracotta-server: 10.5.22.04" "terracotta-server: 10.7.22.04" "terracotta-server: 10.11.22.04"")"
         default: terracotta-server
         required: true
       tags:
