@@ -1,9 +1,6 @@
 name: "Input Validation"
 description: "Input Validation for the parameters passed"
 inputs:
-  source_env:
-    description: Target environment
-    required: true
   target_env:
     description: Target environment
     required: true
@@ -19,6 +16,9 @@ inputs:
   app_version:
     description: App version
     required: true
+  source_env:
+    description: Source environment
+    required: true     
 runs:
   using: composite
   steps:
