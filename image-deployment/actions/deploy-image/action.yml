@@ -32,6 +32,9 @@ inputs:
   source_aws_registry:
     description: Source AWS registry
     required: true
+  source_aws_repo_prefix:
+    description: source_aws_repo_prefix
+    required: true
 runs:
   using: 'composite'
   steps:
