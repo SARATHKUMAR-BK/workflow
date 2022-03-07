@@ -34,4 +34,6 @@ runs:
           echo "Provide the proper platforms listed here [ ${valid_platform[*]} ]" 
           exit 1
         fi
+        IFS="," read -a components <<< ${{ inputs.component }}
+        IFS="," read -a tags <<< ${{ inputs.tag }}
       shell: bash
