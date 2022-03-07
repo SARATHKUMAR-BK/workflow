@@ -97,15 +97,15 @@ jobs:
           if: github.event.inputs.platform == 'aws' 
 
           
-       - name: Deployement Process
-         uses: ./image-deployment/actions/deploy-image
-         with: 
-            target_env: ${{ github.event.inputs.target_env }}
-            platform: ${{ github.event.inputs.platform }}
-            tag: ${{ github.event.inputs.tag }}
-            component: ${{ github.event.inputs.component }}
-            bucket_name: cldp
-            metadata_path: buildfiles
-            app_version: ${{ github.event.inputs.app_version }}
-            source_aws_registry: ${{ steps.img-regs.outputs.AWS_TARGET_REG_URL }}
-            source_aws_repo_prefix: ${{ steps.img-regs.outputs.AWS_SOURCE_REPO_PREFIX }}
+#  - name: Deployement Process
+#    uses: ./image-deployment/actions/deploy-image
+#    with: 
+#       target_env: ${{ github.event.inputs.target_env }}
+#       platform: ${{ github.event.inputs.platform }}
+#       tag: ${{ github.event.inputs.tag }}
+#       component: ${{ github.event.inputs.component }}
+#       bucket_name: cldp
+#       metadata_path: buildfiles
+#       app_version: ${{ github.event.inputs.app_version }}
+#       source_aws_registry: ${{ steps.img-regs.outputs.AWS_TARGET_REG_URL }}
+#       source_aws_repo_prefix: ${{ steps.img-regs.outputs.AWS_SOURCE_REPO_PREFIX }}
