@@ -45,7 +45,7 @@ runs:
         do
           if [[ ! (" ${valid_components[*]} " =~ " ${components[$cldp_component]}: ${tags[$cldp_component]} ") ]]
           then
-            echo "Invalid Components ${components[$cldp_component]}"
+            echo " ${components[$cldp_component]}: ${tags[$cldp_component]} not found"
             exit 1 
           fi 
         done
