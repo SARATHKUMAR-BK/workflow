@@ -53,7 +53,7 @@ runs:
         fi
         #--------------------------------------------Remove existing docker images------------------
           docker images
-         docker rmi -f $(docker images -aq) 1> /dev/null
+        # docker rmi -f $(docker images -aq) 1> /dev/null
         #-----------------------------------------------------------------------------------------------
         
         for pindex in ${!platforms[@]}
