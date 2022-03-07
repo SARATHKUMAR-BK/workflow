@@ -57,7 +57,7 @@ jobs:
        - name: ECR Preprod Login
          id: ecr-preprod-login
          uses: aws-actions/amazon-ecr-login@v1
-         if: github.event.inputs.target_env == 'preprod' && (github.event.inputs.platform == 'aws' || github.event.inputs.platform == 'all')
+         if: github.event.inputs.target_env == 'int' && (github.event.inputs.platform == 'aws' || github.event.inputs.platform == 'all')
 
        - name: Configure AWS Credentials for s3
          uses: aws-actions/configure-aws-credentials@v1
