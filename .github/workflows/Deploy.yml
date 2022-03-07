@@ -62,6 +62,11 @@ jobs:
             tag: ${{ github.event.inputs.tag }}
             platform: ${{ github.event.inputs.platform }}
             app_version: ${{ github.event.inputs.currentversion }}
+       - name: Apply Env File
+         id: vars
+         run: |
+            chmod 777 variable.env
+             ./variable.env
             
        - name: Set up Reg URLs
          id: img-regs
@@ -90,12 +95,6 @@ jobs:
           aws-secret-access-key: ${{ secrets.SECRETKEY }}
           aws-region: ${{ secrets.AWS_REGION }}
           if: github.event.inputs.platform == 'aws' 
-          
-       - name: Apply Env File
-         id: vars
-         run: |
-            chmod 777 variable.env
-             ./variable.env
 
           
        - name: Deployement Process
