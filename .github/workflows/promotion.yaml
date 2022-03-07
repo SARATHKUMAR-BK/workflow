@@ -53,7 +53,7 @@ jobs:
             aws-access-key-id: ${{ secrets.AWS_PREPROD_ACCESS_KEY }}
             aws-secret-access-key: ${{ secrets.AWS_PREPROD_SECRET_KEY }}
             aws-region: ${{ secrets.AWS_PREPROD_REGION }}
-         if: github.event.inputs.target_env == 'preprod' && (github.event.inputs.platform == 'aws' || github.event.inputs.platform == 'all') 
+         if: github.event.inputs.target_env == 'int' && (github.event.inputs.platform == 'aws' || github.event.inputs.platform == 'all') 
        - name: ECR Preprod Login
          id: ecr-preprod-login
          uses: aws-actions/amazon-ecr-login@v1
@@ -69,13 +69,8 @@ jobs:
        - name: Set up Reg URLs
          id: img-regs
          run: |
-          aws s3 ls s3://cldp/buildfiles/
-          docker pull ${{ steps.ecr-login.outputs.registry }}/lj:22.04
-          docker pull ${{ steps.ecr-preprod-login.outputs.registry }}/b2b/webmethods-b2b:10.12.0
-          aws ecr describe-repositories --registry-id=598608222025       
-          
           echo "::set-output name=AWS_SOURCE_REG_URL::${{ steps.ecr-login.outputs.registry }}"
-          if [[ github.event.inputs.target_env == 'preprod' ]]
+          if [[ github.event.inputs.target_env == 'int' ]]
           then
             echo "::set-output name=AWS_TARGET_REG_URL::${{ steps.ecr-preprod-login.outputs.registry }}"
           else
@@ -96,18 +91,4 @@ jobs:
           target_aws_registry: ${{ steps.img-regs.outputs.AWS_TARGET_REG_URL }}
         
         
-       - name: AWS Preprod login
-         uses: aws-actions/configure-aws-credentials@v1
-         with:
-            aws-access-key-id: ${{ secrets.AWS_PREPROD_ACCESS_KEY }}
-            aws-secret-access-key: ${{ secrets.AWS_PREPROD_SECRET_KEY }}
-            aws-region: ${{ secrets.AWS_PREPROD_REGION }}
-       - name: ECR Preprod Login
-         uses: aws-actions/amazon-ecr-login@v1
-         id: pre
-       - name: shell
-         run:  |
-             docker tag ${{ steps.img-regs.outputs.AWS_SOURCE_REG_URL }}/${{ github.event.inputs.components }}:${{ github.event.inputs.tags }} ${{ steps.pre.outputs.registry }}/${{ github.event.inputs.components }}:${{ github.event.inputs.tags }}
-             docker images
-             docker push ${{ steps.pre.outputs.registry }}/${{ github.event.inputs.components }}:${{ github.event.inputs.tags }}
-             aws ecr describe-repositories | jq -r .repositories[].repositoryName
+
