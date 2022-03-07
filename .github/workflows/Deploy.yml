@@ -11,7 +11,7 @@ on:
         default: terracotta-server
         required: true
       tag:
-        description: Mention the tag of the image ( Example 10.11.0)
+        description: Mention the tag of the image ( Example 10.11.22.04 10.5.22.04,10.12.22.04)
         default: "21.10"
         required: true
       platform:
@@ -30,45 +30,64 @@ jobs:
       steps:
        - uses: actions/checkout@v2
          name: Checkout the current repository
-       - name: variable
-         run: |
-            s=${{ github.event.inputs.target_env }}
-             echo "$s"
-       - name: using the var
-         run: echo "$s"
          
-       - name: Configure AWS Credentials for s3
+       - name: Configure AWS Credentials for Dev
          uses: aws-actions/configure-aws-credentials@v1
          with:
           aws-access-key-id: ${{ secrets.AWS_DEV_ACCESS_KEY }}
           aws-secret-access-key: ${{ secrets.AWS_DEV_SECRET_KEY }}
           aws-region: ${{ secrets.AWS_DEV_REGION }}
        -  name: ECR RnD Login
-          id: ecr-login
+          id: ecr-dev-login
           uses: aws-actions/amazon-ecr-login@v1
-          if: github.event.inputs.platform == 'aws' || github.event.inputs.platform == 'all'
-           
-       - name: Configure AWS Credentials
+          if: github.event.inputs. target_env == 'dev' && github.event.inputs.platform == 'aws'
+ 
+       - name: Configure AWS Credentials for Int
+         uses: aws-actions/configure-aws-credentials@v1
+         with:
+          aws-access-key-id: ${{ secrets.AWS_INT_ACCESS_KEY }}
+          aws-secret-access-key: ${{ secrets.AWS_INT_SECRET_KEY }}
+          aws-region: ${{ secrets.AWS_INT_REGION }}
+       -  name: ECR RnD Login
+          id: ecr-int-login
+          uses: aws-actions/amazon-ecr-login@v1
+          if: github.event.inputs. target_env == 'int' && github.event.inputs.platform == 'aws'
+          
+       - name: Validate Inputs
+         uses: ./image-deployment/actions/inputvalidation
+         with:
+            target_env: ${{ github.event.inputs.target_env }}
+            component: ${{ github.event.inputs.component }}
+            tag: ${{ github.event.inputs.tag }}
+            platform: ${{ github.event.inputs.platform }}
+            app_version: ${{ github.event.inputs.currentversion }}
+          
+       - name: Configure AWS Credentials for s3 files
          uses: aws-actions/configure-aws-credentials@v1
          with:
           aws-access-key-id: ${{ secrets.ACCESSKEY }}
           aws-secret-access-key: ${{ secrets.SECRETKEY }}
           aws-region: ${{ secrets.AWS_REGION }}
+          if: github.event.inputs.platform == 'aws' 
           
-          if: github.event.inputs.platform == 'aws' || github.event.inputs.platform == 'all'
-       # name: Validate Inputs
-       # uses: ./image-deployment/actions/inputvalidation
-       # with:
-       #    target_env: ${{ github.event.inputs.target_env }}
-       #    component: ${{ github.event.inputs.component }}
-       #    tag: ${{ github.event.inputs.tag }}
-       #    platform: ${{ github.event.inputs.platform }}
-       #    app_version: ${{ github.event.inputs.currentversion }}
-      #- name: shell
-      #  run: |
-      #     s=$(docker pull ${{ steps.ecr-login.outputs.registry }}/terracotta-server:222 || true)
-      #     echo $s
-            
+       - name: Apply Env File
+         id: vars
+         run: |
+            chmod 777 variable.env
+             ./variable.env
+
+
+       - name: Set up Reg URLs
+         id: img-regs
+         run: | 
+          if [[ ${{ github.event.inputs.target_env }} == "dev" ]]
+          then
+            echo "::set-output name=AWS_TARGET_REG_URL::${{ steps.ecr-dev-login.outputs.registry }}"
+          else
+            echo "::set-output name=AWS_TARGET_REG_URL::${{ steps.ecr-int-login.outputs.registry }}"
+          fi
+          
+          
        - name: Deployement Process
          uses: ./image-deployment/actions/deploy-image
          with: 
@@ -79,4 +98,4 @@ jobs:
             bucket_name: cldp
             metadata_path: buildfiles
             app_version: ${{ github.event.inputs.app_version }}
-            source_aws_registry: ${{ steps.ecr-login.outputs.registry }}
+            source_aws_registry: ${{ steps.img-regs.outputs.AWS_TARGET_REG_URL }}
