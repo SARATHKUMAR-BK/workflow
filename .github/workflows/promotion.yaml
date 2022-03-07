@@ -73,8 +73,10 @@ jobs:
           echo "::set-output name=AWS_SOURCE_REG_URL::${{ steps.ecr-login.outputs.registry }}"
           if [[ github.event.inputs.target_env == 'int' ]]
           then
+            echo "int"
             echo "::set-output name=AWS_TARGET_REG_URL::${{ steps.ecr-preprod-login.outputs.registry }}"
           else
+            echo "dev"
             echo "::set-output name=AWS_TARGET_REG_URL::${{ steps.ecr-login.outputs.registry }}"
           fi
        - name: Set up Reg URLs
