@@ -61,6 +61,13 @@ jobs:
           aws-access-key-id: ${{ secrets.ACCESSKEY }}
           aws-secret-access-key: ${{ secrets.SECRETKEY }}
           aws-region: ${{ secrets.AWS_REGION }}
+
+
+       - name: Apply Env File
+         id: vars
+         run: |
+          chmod 777 variable.env
+          ./variable.env
           
        - name: Set up Reg URLs
          id: img-regs
@@ -74,6 +81,7 @@ jobs:
           else
             echo "::set-output name=AWS_TARGET_REG_URL::${{ steps.ecr-dev-login.outputs.registry }}"
           fi
+
        - name: Promote Images to Env
          uses: ./image-deployment/actions/promote-image
          with:
