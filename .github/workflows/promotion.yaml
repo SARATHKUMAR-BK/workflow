@@ -15,7 +15,7 @@ on:
         default: int
         required: true
       components:
-        description: "Components to promote (""integration-server: 10.5.22.04" "integration-server: 10.7.22.04" "integration-server: 10.11.22.04" "universal-messaging: 10.5.22.04" "universal-messaging: 10.7.22.04" "universal-messaging: 10.11.22.04" "terracotta-server: 10.5.22.04" "terracotta-server: 10.7.22.04" "terracotta-server: 10.11.22.04"")"
+        description: "Components to promote (integration-server-10.5.22.04 integration-server-10.7.22.04 integration-server-10.11.22.04 universal-messaging- 10.5.22.04 universal-messaging-10.7.22.04 universal-messaging-10.11.22.04 terracotta-server-10.5.22.04 terracotta-server-10.7.22.04 terracotta-server- 10.11.22.04)"
         default: terracotta-server
         required: true
       tags:
