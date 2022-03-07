@@ -101,7 +101,35 @@ runs:
        
            rm -rf shafile.txt
           rm -rf deployment_file
-          cat shafile.txt
-          cat deployment_file
        done
+    shell: bash
+    
+    
+  - name: Delete old Builds
+    run: |
+        if [[ "${{ inputs.platform }}" = "all" ]]
+        then
+          platforms=(aws azure)
+        else
+          platforms=(${{ inputs.platform }})
+        fi
+        echo "${platforms[*]}"
+        for cldp_platform in ${!platforms[@]}
+        do
+          echo "Build History of ${platforms[$cldp_platform]}-${{ inputs.target_env }}"
+          aws s3 ls s3://${{inputs.bucket_name}}/${{inputs.metadata_path}}/ | awk '{print $4}' | grep ".*-${platforms[$cldp_platform]}-${{ inputs.target_env }}-${{ inputs.app_version }}-deploy-builds.txt"
+          fcount=$(aws s3 ls s3://${{inputs.bucket_name}}/${{inputs.metadata_path}}/ | awk '{print $4}' | grep ".*-${platforms[$cldp_platform]}-${{ inputs.target_env }}-${{ inputs.app_version }}-deploy-builds.txt" | wc -l)
+          echo "$fcount"
+          if [[ $fcount -le 3 ]]
+          then
+                  echo "Deletion cancelled."
+          else
+                  aws s3 ls s3://${{inputs.bucket_name}}/${{inputs.metadata_path}}/ | awk '{print $4}' | grep ".*-${platforms[$cldp_platform]}-${{ inputs.target_env }}-${{ inputs.app_version }}-deploy-builds.txt" | sort -nr | tail +4 | while read filename
+          do
+                  echo "Deleting file $filename"
+                  aws s3 rm s3://${{inputs.bucket_name}}/${{inputs.metadata_path}}/$filename
+                  echo "$filename deleted sucessfully"
+          done
+          fi
+        done
     shell: bash
