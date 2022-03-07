@@ -32,24 +32,24 @@ runs:
           echo "Provide the proper environment listed here [ ${valid_env[*]} ]" 
           exit 1
         fi
-    if [[ ! (" ${valid_platform[*]} " =~ " ${{inputs.platform}} ") ]]
-    then
-      echo "Provide the proper platforms listed here [ ${valid_platform[*]} ]" 
-      exit 1
-    fi
-#    IFS="," read -a components <<< ${{ inputs.component }}
-#    IFS="," read -a tags <<< ${{ inputs.tag }}
-#    if [[ ${#components[@]} -ne ${#tags[@]} ]]
-#    then
-#      echo "Image and tags count are mismatching , Pls provide crt image and tag pair"
-#      exit 1
-#    fi
-#    for cldp_component in ${!components[@]}
-#    do
-#      if [[ ! (" ${valid_components[*]} " =~ " ${components[$cldp_component]}: ${tags[$cldp_component]} ") ]]
-#      then
-#        echo " ${components[$cldp_component]}: ${tags[$cldp_component]} not found"
-#        exit 1 
-#      fi 
-#    done
+        if [[ ! (" ${valid_platform[*]} " =~ " ${{inputs.platform}} ") ]]
+        then
+          echo "Provide the proper platforms listed here [ ${valid_platform[*]} ]" 
+          exit 1
+        fi
+        IFS="," read -a components <<< ${{ inputs.component }}
+        IFS="," read -a tags <<< ${{ inputs.tag }}
+        if [[ ${#components[@]} -ne ${#tags[@]} ]]
+        then
+          echo "Image and tags count are mismatching , Pls provide crt image and tag pair"
+          exit 1
+        fi
+        for cldp_component in ${!components[@]}
+        do
+          if [[ ! (" ${valid_components[*]} " =~ " ${components[$cldp_component]}: ${tags[$cldp_component]} ") ]]
+          then
+            echo " ${components[$cldp_component]}: ${tags[$cldp_component]} not found"
+            exit 1 
+          fi 
+        done
       shell: bash
