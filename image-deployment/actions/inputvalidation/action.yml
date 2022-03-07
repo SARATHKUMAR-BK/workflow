@@ -22,7 +22,7 @@ runs:
     - name: Validate Inputs
       run: |
         valid_env=(dev spro int stage)
-        valid_components=("integration-server: 10.5.22.04" "integration-server: 10.11.22.04" "universal-messaging: 10.5.22.04" "universal-messaging: 10.11.22.04")
+        valid_components=("integration-server: 10.5.22.04" "integration-server: 10.7.22.04" "integration-server: 10.11.22.04" "universal-messaging: 10.5.22.04" "universal-messaging: 10.7.22.04" "universal-messaging: 10.11.22.04" "terracotta-server: 10.5.22.04" "terracotta-server: 10.7.22.04" "terracotta-server: 10.11.22.04" )
         valid_platform=(aws azure all)
         if [[ ! (" ${valid_env[*]} " =~ " ${{inputs.target_env}} ") ]]
         then
