@@ -39,9 +39,9 @@ jobs:
        - name: Configure AWS Credentials for s3
          uses: aws-actions/configure-aws-credentials@v1
          with:
-          aws-access-key-id: ${{ secrets.ACCESSKEY }}
-          aws-secret-access-key: ${{ secrets.SECRETKEY }}
-          aws-region: ${{ secrets.AWS_REGION }}
+          aws-access-key-id: ${{ secrets.AWS_DEV_ACCESS_KEY }}
+          aws-secret-access-key: ${{ secrets.AWS_DEV_SECRET_KEY }}
+          aws-region: ${{ secrets.AWS_DEV_REGION }}
        -  name: ECR RnD Login
           id: ecr-login
           uses: aws-actions/amazon-ecr-login@v1
