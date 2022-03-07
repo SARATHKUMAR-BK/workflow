@@ -51,34 +51,17 @@ runs:
         else
           tags=()
         fi
+        #--------------------------------------------Remove existing docker images------------------
+         docker rmi -f $(docker images -aq)
+        #-----------------------------------------------------------------------------------------------
+        
         for pindex in ${!platforms[@]}
         do
                 sourcebuildfile="${platforms[${pindex}]}-${{ inputs.source_env }}-${{ inputs.app_version }}-deploy-builds.txt"
                 targetbuildfile="${platforms[${pindex}]}-${{ inputs.target_env }}-${{ inputs.app_version }}-deploy-builds.txt"
+                
                  #--------------------Check source file and tags is present or not--------------------------------------------------#
-                if [[ "${{ inputs.source_env }}" = "dev" || "${{ inputs.source_env }}" = "spro" ]]
-                then
-                      for cindex in ${!components[@]}
-                      do
-                          echo "start"
-                          repo_present=$(aws ecr describe-repositories | jq -r .repositories[].repositoryName | grep -E "^${components[${cindex}]}$" || true)
-                          echo "*******$repo_present**********"
-                         if [[  "$repo_present" == "" ]]
-                          then
-                              echo " ${components[${cindex}]} is not there in source env" 
-                              exit 1
-                          else
-                              tag_present=$(aws ecr describe-images --repository-name=${components[${cindex}]}  --query 'sort_by(imageDetails,& imagePushedAt)[*].imageTags[0]' --region=us-east-1 | grep "${tags[${cindex}]}" || true)
-                              if  [[  "$tag_present" == "" ]]
-                              then
-                                  echo "${tags[${cindex}]} is not present in ${components[${cindex}]} " 
-                                  exit 1
-                              else
-                                    echo "${components[${cindex}]}:${tags[${cindex}]} is present in source env"
-                               fi
-                            fi
-                       done
-                 else
+                 
                        sourceenv_filepresent=$(aws s3 ls s3://${{ inputs.bucket_name }}/${{ inputs.metadata_path }}/$sourcebuildfile || true)
                        if [[ "$sourceenv_filepresent" == "" ]]
                        then
@@ -88,15 +71,16 @@ runs:
                         aws s3 cp s3://${{ inputs.bucket_name  }}/${{ inputs.metadata_path }}/$sourcebuildfile $sourcebuildfile 
                        for cindex in ${!components[@]}
                        do
-                           component_present=`sed -n "/^${components[${cindex}]}:.*/p" $sourcebuildfile || true`
+                           component_present=`sed -n "/^${components[${cindex}]}: ${tags[${cindex}]}.*/p" $sourcebuildfile || true`
                            if [[ "$component_present" = "" ]]
                            then
-                              echo "${components[$cindex]} Image not deployed in previous env"
+                              echo "${components[$cindex]}: ${tags[${cindex}]} Image with tag not deployed in previous env"
                               exit 1
                            fi  
                         done        
-                 fi
+                 
                    #---------------------------------Compare the SHA code for source env and source repository---------------------------------------------#
+                   exit 1
                    echo "path ${{ inputs.bucket_name}}/${{ inputs.metadata_path }}/$sourcebuildfile"
                aws s3 cp s3://${{ inputs.bucket_name}}/${{ inputs.metadata_path }}/$sourcebuildfile $sourcebuildfile
                cat $sourcebuildfile
@@ -104,6 +88,7 @@ runs:
                do
                    sha_in_deplyfile=$(sed -n "/^${components[${cindex}]}: ${tags[${cindex}]}.*/p" $sourcebuildfile | awk '{print $3}' | tr -d [:space:])
                    echo "sha_in_deplyfile   $sha_in_deplyfile"
+                   
                    sha_in_repo=`aws ecr describe-images --repository-name=${components[${cindex}]} --image-ids imageTag=${tags[${cindex}]} | jq '.imageDetails[0].imageDigest' -r`
                     echo "sha_in_repo=== $sha_in_repo"
                    if [[ "$sha_in_deplyfile" != "$sha_in_repo" ]]
