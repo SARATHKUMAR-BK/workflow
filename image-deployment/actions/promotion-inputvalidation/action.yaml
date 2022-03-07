@@ -2,7 +2,7 @@ name: "Input Validation"
 description: "Input Validation for the parameters passed"
 inputs:
   source_env:
-    description: source environment
+    description: Target environment
     required: true
   target_env:
     description: Target environment
@@ -24,22 +24,14 @@ runs:
   steps:
     - name: Validate Inputs
       run: |
-        valid_src_env=(dev spro int stage preprod)
-        valid_target_env=(int stage preprod prod)
+        valid_env=(dev spro int stage)
         valid_components=("integration-server: 10.5.22.04" "integration-server: 10.7.22.04" "integration-server: 10.11.22.04" "universal-messaging: 10.5.22.04" "universal-messaging: 10.7.22.04" "universal-messaging: 10.11.22.04" "terracotta-server: 10.5.22.04" "terracotta-server: 10.7.22.04" "terracotta-server: 10.11.22.04" )
         valid_platform=(aws azure all)
-        if [[ ! (" ${valid_src_env[*]} " =~ " ${{inputs.source_env}} ") ]]
+        if [[ ! (" ${valid_env[*]} " =~ " ${{inputs.target_env}} ") ]]
         then
-          echo "Provide the proper environment listed here [ ${valid_src_env[*]} ] for source env" 
+          echo "Provide the proper environment listed here [ ${valid_env[*]} ]" 
           exit 1
         fi
-        
-        if [[ ! (" ${valid_target_env[*]} " =~ " ${{inputs.target_env}} ") ]]
-        then
-          echo "Provide the proper environment listed here [ ${valid_target_env[*]} ] for target env" 
-          exit 1
-        fi
-        
         if [[ ! (" ${valid_platform[*]} " =~ " ${{inputs.platform}} ") ]]
         then
           echo "Provide the proper platforms listed here [ ${valid_platform[*]} ]" 
