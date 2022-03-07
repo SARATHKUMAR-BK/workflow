@@ -131,14 +131,13 @@ runs:
                   done
                   cat $targetbuildfile
          done
+         
+         #------------------------------------------------pushed to target repo------------------------------------#
                   for cindex in ${!components[@]}
                   do
-        
-                    docker pull ${{ inputs.source_aws_registry }}/${components[${cindex}]}:${tags[${cindex}]}
-                   done
-                   docker images
-               # docker tag ${{ inputs.source_aws_registry }}/terracotta-server:21.10 ${{ inputs.target_aws_registry }}/terracotta-server:21.10.0
-               # docker push ${{ inputs.target_aws_registry }}/terracotta-server:21.10.0
+ 
+                     docker tag ${{ inputs.source_aws_registry }}/${components[${cindex}]}:${tags[${cindex}]} ${{ inputs.target_aws_registry }}/${components[${cindex}]}:${tags[${cindex}]}
+                      docker push ${{ inputs.target_aws_registry }}/${components[${cindex}]}:${tags[${cindex}]}
         for pindex in ${!platforms[@]}
         do
           targetbuildfile=${platforms[${pindex}]}-${{ inputs.target_env }}-${{ inputs.app_version }}-deploy-builds.txt
