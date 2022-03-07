@@ -34,6 +34,21 @@ runs:
           echo "Provide the proper platforms listed here [ ${valid_platform[*]} ]" 
           exit 1
         fi
-        IFS="," read -a components <<< ${{ inputs.component }}
-        IFS="," read -a tags <<< ${{ inputs.tag }}
+        #IFS="," read -a components <<< ${{ inputs.component }}
+        components=($(echo ${{ inputs.component }} | sed -e 's\,\ \g'))
+       # IFS="," read -a tags <<< ${{ inputs.tag }}
+        tags=($(echo ${{ inputs.tag }} | sed -e 's\,\ \g'))
+        if [[ ${#components[@]} -ne ${#tags[@]} ]]
+        then
+          echo "Image and tags count are mismatching , Pls provide crt image and tag pair"
+          exit 1
+        fi
+        for cldp_component in ${!components[@]}
+        do
+          if [[ ! (" ${valid_components[*]} " =~ " ${components[$cldp_component]}: ${tags[$cldp_component]} ") ]]
+          then
+            echo " ${components[$cldp_component]}: ${tags[$cldp_component]} not found"
+            exit 1 
+          fi 
+        done 
       shell: bash
