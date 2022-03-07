@@ -52,7 +52,8 @@ runs:
           tags=()
         fi
         #--------------------------------------------Remove existing docker images------------------
-         docker rmi -f $(docker images -aq)
+          docker images
+         docker rmi -f $(docker images -aq) 1> /dev/null
         #-----------------------------------------------------------------------------------------------
         
         for pindex in ${!platforms[@]}
@@ -80,23 +81,23 @@ runs:
                         done        
                  
                    #---------------------------------Compare the SHA code for source env and source repository---------------------------------------------#
-                   exit 1
-                   echo "path ${{ inputs.bucket_name}}/${{ inputs.metadata_path }}/$sourcebuildfile"
-               aws s3 cp s3://${{ inputs.bucket_name}}/${{ inputs.metadata_path }}/$sourcebuildfile $sourcebuildfile
-               cat $sourcebuildfile
-               for cindex in ${!components[@]}
-               do
-                   sha_in_deplyfile=$(sed -n "/^${components[${cindex}]}: ${tags[${cindex}]}.*/p" $sourcebuildfile | awk '{print $3}' | tr -d [:space:])
-                   echo "sha_in_deplyfile   $sha_in_deplyfile"
-                   
-                   sha_in_repo=`aws ecr describe-images --repository-name=${components[${cindex}]} --image-ids imageTag=${tags[${cindex}]} | jq '.imageDetails[0].imageDigest' -r`
-                    echo "sha_in_repo=== $sha_in_repo"
-                   if [[ "$sha_in_deplyfile" != "$sha_in_repo" ]]
-                   then
-                      echo "both sha is differ"
-                      exit 1
-                   fi  
-                done   
+
+ #           echo "path ${{ inputs.bucket_name}}/${{ inputs.metadata_path }}/$sourcebuildfile"
+ #       aws s3 cp s3://${{ inputs.bucket_name}}/${{ inputs.metadata_path }}/$sourcebuildfile $sourcebuildfile
+ #       cat $sourcebuildfile
+ #       for cindex in ${!components[@]}
+ #       do
+ #           sha_in_deplyfile=$(sed -n "/^${components[${cindex}]}: ${tags[${cindex}]}.*/p" $sourcebuildfile | awk '{print $3}' | tr -d [:space:])
+ #           echo "sha_in_deplyfile   $sha_in_deplyfile"
+ #           
+ #           sha_in_repo=`aws ecr describe-images --repository-name=${components[${cindex}]} --image-ids imageTag=${tags[${cindex}]} | jq '.imageDetails[0].imageDigest' -r`
+ #            echo "sha_in_repo=== $sha_in_repo"
+ #           if [[ "$sha_in_deplyfile" != "$sha_in_repo" ]]
+ #           then
+ #              echo "both sha is differ"
+ #              exit 1
+ #           fi  
+ #               done   
                
                  
                  #-----------------------Target file creation -----------------------------------------------#
@@ -134,7 +135,7 @@ runs:
                   for cindex in ${!components[@]}
                   do
         
-                     docker pull ${{ inputs.source_aws_registry }}/${components[${cindex}]}:${tags[${cindex}]}
+                    docker pull ${{ inputs.source_aws_registry }}/${components[${cindex}]}:${tags[${cindex}]}
                    done
                    docker images
                # docker tag ${{ inputs.source_aws_registry }}/terracotta-server:21.10 ${{ inputs.target_aws_registry }}/terracotta-server:21.10.0
