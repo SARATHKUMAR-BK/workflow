@@ -27,7 +27,6 @@ runs:
   steps:
     - name: Validate Inputs
       run: |
-        echo "${{ secrets.AWS_DEV_ACCESS_KEY }}"
         valid_src_env=(dev spro int stage preprod)
         valid_target_env=(int stage preprod prod)
         valid_components=("integration-server: 10.5.22.04" "integration-server: 10.7.22.04" "integration-server: 10.11.22.04" "universal-messaging: 10.5.22.04" "universal-messaging: 10.7.22.04" "universal-messaging: 10.11.22.04" "terracotta-server: 10.5.22.04" "terracotta-server: 10.7.22.04" "terracotta-server: 10.11.22.04" )
