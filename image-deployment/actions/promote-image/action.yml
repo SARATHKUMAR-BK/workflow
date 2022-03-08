@@ -149,7 +149,7 @@ runs:
                         then
                            echo "No repository"
                         else
-                          echo "repo present"
+                          echo "repo present: $s"
                         fi
                   done
                   
