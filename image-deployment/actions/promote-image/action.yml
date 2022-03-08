@@ -78,7 +78,7 @@ runs:
                        fi
                        aws s3 cp s3://${{ inputs.bucket_name  }}/${{ inputs.metadata_path }}/$sourcebuildfile $sourcebuildfile 
                         
-                       if [[ !("${{inputs.component}}" =~ "all") ]]
+                       if [[ !("${{inputs.components}}" =~ "all") ]]
                        then
                           for cindex in ${!components[@]}
                           do
@@ -97,7 +97,7 @@ runs:
                cat $sourcebuildfile
               echo "--------------------------------------"
                                         #----------------------Check all component------------------------------------------
-             if [[ ("${{inputs.component}}" =~ "all") ]]
+             if [[ ("${{inputs.components}}" =~ "all") ]]
              then
                   echo "User choose all component"
                  while IFS= read -r line
