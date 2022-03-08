@@ -73,7 +73,7 @@ runs:
           if [[ ("${{inputs.component}}" =~ "all") ]]
           then
               echo "inside if"
-              if [[ !("all" =~ " ${{inputs.tag}} ") ]]
+              if [[ !("all" =~ "${{inputs.tag}}") ]]
               then
                 echo "inside else"
                 echo "If component is all then tag must be all" 
