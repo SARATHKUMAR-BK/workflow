@@ -149,7 +149,7 @@ runs:
                        s=`docker push ${{ inputs.target_aws_registry }}/${{ inputs.source_aws_repo_prefix }}/${components[${cindex}]}4:${tags[${cindex}]} || true`
                        echo "status ****$s******"
                        date
-                       if [[ "$s" =~ .*"digest: sha256".* ]]
+                       if [[ !("$s" =~ .*"digest: sha256".*) ]]
                         then
                            echo "No repository"
                         else
