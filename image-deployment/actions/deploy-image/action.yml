@@ -77,11 +77,10 @@ runs:
             do
               echo "inside for loop"
               lookforcomponent=`sed -n "/^${components[${component_index}]}: ${tags[${component_index}]}.*/p" $deployment_file || true`
-              
+              shaID=$(grep -i "${components[${component_index}]}: ${tags[${component_index}]}" shafile.txt | cut -d " " -f 3)
+              echo "SHAID : $shaID"
             if [[ "$lookforcomponent" = "" ]]
               then
-                      shaID=$(grep -i "${components[${component_index}]}: ${tags[${component_index}]}" shafile.txt | cut -d " " -f 3)
-                      echo "SHAID : $shaID"
                       echo "${components[${component_index}]}: ${tags[${component_index}]}: $shaID" >> $deployment_file
               else
                       sed -i "s/${components[${component_index}]}: ${tags[${component_index}]}.*/${components[${component_index}]}: ${tags[${component_index}]}: $shaID/g" $deployment_file
@@ -98,8 +97,10 @@ runs:
 
           chmod 777 ./image-deployment/actions/deploy-image/dep.sh
           bash ./image-deployment/actions/deploy-image/dep.sh
-
+         
+          echo "Copy the updated file to s3 files"
           aws s3 cp $deployment_file s3://${{inputs.bucket_name}}/${{inputs.metadata_path}}/$deployment_file
+           echo "Copy the updated file with date label to s3 files"
           aws s3 cp $deployment_file s3://${{inputs.bucket_name}}/${{inputs.metadata_path}}/${datelabel}-${platforms[$b2b_platform]}-${{ inputs.target_env }}-${{ inputs.app_version }}-deploy-builds.txt
        
            rm -rf shafile.txt
