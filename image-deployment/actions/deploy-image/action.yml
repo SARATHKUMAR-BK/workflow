@@ -75,7 +75,6 @@ runs:
             
             for component_index in ${!components[@]}
             do
-              echo "inside for loop"
               lookforcomponent=`sed -n "/^${components[${component_index}]}: ${tags[${component_index}]}.*/p" $deployment_file || true`
               shaID=$(grep -i "${components[${component_index}]}: ${tags[${component_index}]}" shafile.txt | cut -d " " -f 3)
               echo "SHAID : $shaID"
