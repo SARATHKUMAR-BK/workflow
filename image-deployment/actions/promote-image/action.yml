@@ -124,7 +124,7 @@ runs:
                   for cindex in ${!components[@]}
                   do
                     target_tag_present=`sed -n "/^${components[${cindex}]}: ${tags[${cindex}]}.*/p" $targetbuildfile || true`
-                   sha_in_repo=`docker inspect --format='{{.RepoDigests}}' ${{ inputs.source_aws_registry }}/${components[${cindex}]}:${tags[${cindex}]}  | sed 's:^.\(.*\).$:\1:' | tr " " "\n" | grep ${{ inputs.source_aws_registry }}/${components[${cindex}]}  | cut -d "@" -f 2`
+                   sha_in_repo=`docker inspect --format='{{.RepoDigests}}' ${{ inputs.source_aws_registry }}/${{ inputs.source_aws_repo_prefix }}/${components[${cindex}]}:${tags[${cindex}]}  | sed 's:^.\(.*\).$:\1:' | tr " " "\n" | grep ${{ inputs.source_aws_registry }}/${{ inputs.source_aws_repo_prefix }}/${components[${cindex}]}  | cut -d "@" -f 2`
                     if [[ "$target_tag_present" = "" ]]
                     then
                       echo "tag for ${components[${cindex}]} not present in target file add it"
