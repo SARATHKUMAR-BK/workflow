@@ -19,6 +19,9 @@ inputs:
   app_version:
     description: App version
     required: true
+  validversion:
+    description: "valid major versions"
+    required: true 
 runs:
   using: composite
   steps:
@@ -28,6 +31,7 @@ runs:
         valid_target_env=(int stage preprod prod)
         valid_components=("integration-server: 10.5.22.04" "integration-server: 10.7.22.04" "integration-server: 10.11.22.04" "universal-messaging: 10.5.22.04" "universal-messaging: 10.7.22.04" "universal-messaging: 10.11.22.04" "terracotta-server: 10.5.22.04" "terracotta-server: 10.7.22.04" "terracotta-server: 10.11.22.04" )
         valid_platform=(aws azure all)
+        valid_env_pair=(dev-int int-stage stage-preprod spro-preprod)
         
         if [[ ! (" ${valid_src_env[*]} " =~ " ${{inputs.source_env}} ") ]]
         then
@@ -41,25 +45,46 @@ runs:
           exit 1
         fi
         
+        if [[ !(" ${valid_env_pai[*]} " =~ " ${{ inputs.source_env }}-${{ inputs.target_env }} ") ]]
+        then
+          echo "Cannot Promote Images from ${{ inputs.source_env }} to ${{ inputs.target_env }}"
+          exit 1
+        fi
+        
         if [[ ! (" ${valid_platform[*]} " =~ " ${{inputs.platform}} ") ]]
         then
           echo "Provide the proper platforms listed here [ ${valid_platform[*]} ]" 
           exit 1
         fi
         
+        if [[ !(" ${valid_versions[*]} " =~ " ${{inputs.currentversion}} ") ]]
+        then
+          echo "Invalid Major version ${{inputs.currentversion}}" 
+          exit 1
+        fi
+        
         echo "component are: ${{ inputs.component }}"
         echo "tags are : ${{ inputs.tag }}"
         
-        components=($(echo ${{ inputs.component }} | sed -e 's\,\ \g'))
-        tags=($(echo ${{ inputs.tag }} | sed -e 's\,\ \g'))
-
-        for cldp_component in ${!components[@]}
-        do
-          echo "inside for ${components[$cldp_component]}: ${tags[$cldp_component]} "
-          if [[ ! (" ${valid_components[*]} " =~ " ${components[$cldp_component]}: ${tags[$cldp_component]} ") ]]
-          then
-            echo " ${components[$cldp_component]}: ${tags[$cldp_component]} not found"
-            exit 1 
-          fi 
-         done 
+        if [[ ("all" =~ " ${{inputs.component}} ") ]]
+        then
+            if [[ !("all" =~ " ${{inputs.tag}} ") ]]
+            then
+              echo "If component is all then tag must be all" 
+              exit 1
+            fi
+        else
+            components=($(echo ${{ inputs.component }} | sed -e 's\,\ \g'))
+            tags=($(echo ${{ inputs.tag }} | sed -e 's\,\ \g'))
+  
+            for cldp_component in ${!components[@]}
+            do
+              echo "inside for ${components[$cldp_component]}: ${tags[$cldp_component]} "
+              if [[ ! (" ${valid_components[*]} " =~ " ${components[$cldp_component]}: ${tags[$cldp_component]} ") ]]
+              then
+                echo " ${components[$cldp_component]}: ${tags[$cldp_component]} not found"
+                exit 1 
+              fi 
+            done 
+          fi
       shell: bash
