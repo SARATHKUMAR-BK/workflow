@@ -91,22 +91,28 @@ runs:
                    
               echo "Source file details"
                cat $sourcebuildfile
-               echo "--------------"
-               for cindex in ${!components[@]}
-               do
-                   sha_in_deplyfile=$(sed -n "/^${components[${cindex}]}: ${tags[${cindex}]}.*/p" $sourcebuildfile | awk '{print $3}' | tr -d [:space:])
-                   echo "sha_in_deplyfile   $sha_in_deplyfile"
-                   
-                   docker pull ${{ inputs.source_aws_registry }}/${{ inputs.source_aws_repo_prefix }}/${components[${cindex}]}:${tags[${cindex}]}
-                   sha_in_repo=`docker inspect --format='{{.RepoDigests}}' ${{ inputs.source_aws_registry }}/${{ inputs.source_aws_repo_prefix }}/${components[${cindex}]}:${tags[${cindex}]}  | sed 's:^.\(.*\).$:\1:' | tr " " "\n" | grep ${{ inputs.source_aws_registry }}/${{ inputs.source_aws_repo_prefix }}/${components[${cindex}]}  | cut -d "@" -f 2`
-                  # =`aws ecr describe-images --repository-name=${components[${cindex}]} --image-ids imageTag=${tags[${cindex}]} | jq '.imageDetails[0].imageDigest' -r`
-                    echo "sha_in_repo=== $sha_in_repo"
-                   if [[ "$sha_in_deplyfile" != "$sha_in_repo" ]]
-                   then
-                      echo "both sha is differ"
-                      exit 1
-                   fi  
-                done   
+              echo "--------------------------------------"
+                                        #----------------------Check all component------------------------------------------
+             if [[ ("${{inputs.component}}" =~ "all") ]]
+             then
+                 echo "All"
+             else
+                 for cindex in ${!components[@]}
+                 do
+                     sha_in_deplyfile=$(sed -n "/^${components[${cindex}]}: ${tags[${cindex}]}.*/p" $sourcebuildfile | awk '{print $3}' | tr -d [:space:])
+                     echo "sha_in_deplyfile   $sha_in_deplyfile"
+
+                     docker pull ${{ inputs.source_aws_registry }}/${{ inputs.source_aws_repo_prefix }}/${components[${cindex}]}:${tags[${cindex}]}
+                     sha_in_repo=`docker inspect --format='{{.RepoDigests}}' ${{ inputs.source_aws_registry }}/${{ inputs.source_aws_repo_prefix }}/${components[${cindex}]}:${tags[${cindex}]}  | sed 's:^.\(.*\).$:\1:' | tr " " "\n" | grep ${{ inputs.source_aws_registry }}/${{ inputs.source_aws_repo_prefix }}/${components[${cindex}]}  | cut -d "@" -f 2`
+                    # =`aws ecr describe-images --repository-name=${components[${cindex}]} --image-ids imageTag=${tags[${cindex}]} | jq '.imageDetails[0].imageDigest' -r`
+                      echo "sha_in_repo=== $sha_in_repo"
+                     if [[ "$sha_in_deplyfile" != "$sha_in_repo" ]]
+                     then
+                        echo "both sha is differ"
+                        exit 1
+                     fi  
+                  done   
+               fi
                
 
                
@@ -143,19 +149,8 @@ runs:
                   for cindex in ${!components[@]}
                   do
  
-                    # docker tag ${{ inputs.source_aws_registry }}/${{ inputs.source_aws_repo_prefix }}/${components[${cindex}]}:${tags[${cindex}]} ${{ inputs.target_aws_registry }}/${{ inputs.source_aws_repo_prefix }}/${components[${cindex}]}:${tags[${cindex}]}
-                    docker tag ${{ inputs.source_aws_registry }}/${{ inputs.source_aws_repo_prefix }}/${components[${cindex}]}:${tags[${cindex}]} ${{ inputs.target_aws_registry }}/${{ inputs.source_aws_repo_prefix }}/${components[${cindex}]}4:${tags[${cindex}]}
-                    #docker push ${{ inputs.target_aws_registry }}/${{ inputs.source_aws_repo_prefix }}/${components[${cindex}]}:${tags[${cindex}]}
-                       s=`docker push ${{ inputs.target_aws_registry }}/${{ inputs.source_aws_repo_prefix }}/${components[${cindex}]}4:${tags[${cindex}]} || true`
-                       echo "status ****$s******"
-                       date
-                       if [[ !("$s" =~ .*"digest: sha256".*) ]]
-                        then
-                           echo "No repository"
-                        else
-                          echo "repo present: $s"
-                        fi
-                        date
+                    docker tag ${{ inputs.source_aws_registry }}/${{ inputs.source_aws_repo_prefix }}/${components[${cindex}]}:${tags[${cindex}]} ${{ inputs.target_aws_registry }}/${{ inputs.source_aws_repo_prefix }}/${components[${cindex}]}:${tags[${cindex}]}
+                    docker push ${{ inputs.target_aws_registry }}/${{ inputs.source_aws_repo_prefix }}/${components[${cindex}]}:${tags[${cindex}]}
                   done
                   
         for pindex in ${!platforms[@]}
