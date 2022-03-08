@@ -145,12 +145,15 @@ runs:
                     docker tag ${{ inputs.source_aws_registry }}/${{ inputs.source_aws_repo_prefix }}/${components[${cindex}]}:${tags[${cindex}]} ${{ inputs.target_aws_registry }}/${{ inputs.source_aws_repo_prefix }}/${components[${cindex}]}/no:2222
                     #docker push ${{ inputs.target_aws_registry }}/${{ inputs.source_aws_repo_prefix }}/${components[${cindex}]}:${tags[${cindex}]}
                        s=`docker push ${{ inputs.target_aws_registry }}/${{ inputs.source_aws_repo_prefix }}/${components[${cindex}]}/no:2222 || true`
+                       echo "status ****$s******"
+                       date
                        if [[ "$s" == "" ]]
                         then
                            echo "No repository"
                         else
                           echo "repo present: $s"
                         fi
+                        date
                   done
                   
         for pindex in ${!platforms[@]}
