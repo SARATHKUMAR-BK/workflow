@@ -86,7 +86,7 @@ jobs:
          uses: ./image-deployment/actions/promotion-inputvalidation
          with:
             target_env: ${{ github.event.inputs.target_env }}
-          #  source_env: ${{ github.event.inputs.source_env }}
+            source_env: ${{ github.event.inputs.source_env }}
             component: ${{ github.event.inputs.components }}
             tag: ${{ github.event.inputs.tags }}
             platform: ${{ github.event.inputs.platform }}
