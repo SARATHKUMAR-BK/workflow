@@ -65,14 +65,17 @@ runs:
             lookforfile=$(aws s3 ls s3://${{inputs.bucket_name}}/${{inputs.metadata_path}}/$deployment_file || true)
             if [[ "$lookforfile" == "" ]]
             then
+              echo "new $deployment_file is create now"
               touch "./${deployment_file}"
             else
+              echo "copy the ${{inputs.bucket_name}}/${{inputs.metadata_path}}/$deployment_file to local"
               aws s3 cp s3://${{inputs.bucket_name}}/${{inputs.metadata_path}}/$deployment_file $deployment_file
             fi
             
             
             for component_index in ${!components[@]}
             do
+              echo "inside for loop"
               lookforcomponent=`sed -n "/^${components[${component_index}]}: ${tags[${component_index}]}.*/p" $deployment_file || true`
               
             if [[ "$lookforcomponent" = "" ]]
