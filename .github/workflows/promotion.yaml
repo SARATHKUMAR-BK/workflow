@@ -87,8 +87,8 @@ jobs:
          with:
             target_env: ${{ github.event.inputs.target_env }}
           #  source_env: ${{ github.event.inputs.source_env }}
-            component: ${{ github.event.inputs.component }}
-            tag: ${{ github.event.inputs.tag }}
+            component: ${{ github.event.inputs.components }}
+            tag: ${{ github.event.inputs.tags }}
             platform: ${{ github.event.inputs.platform }}
             app_version: ${{ github.event.inputs.currentversion }}
             
