@@ -102,8 +102,8 @@ runs:
                   echo "User choose all component"
                  while IFS= read -r line
                  do
-                    component_name=`echo "$line" | cut -d " " -f 1`
-                    tag_name=`echo "$line" | cut -d " " -f 1`
+                    component_name=`echo "$line" | cut -d " " -f 1 | sed 's/://'`
+                    tag_name=`echo "$line" | cut -d " " -f 1 | sed 's/://'`
                     sha_in_deplyfile=`echo "$line" | cut -d " " -f 3`
                     echo "component_name= $component_name"
                     echo "tag_name $tag_name"
