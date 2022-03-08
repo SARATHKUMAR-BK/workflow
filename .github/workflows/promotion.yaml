@@ -72,7 +72,7 @@ jobs:
        - name: Set up Reg URLs
          id: img-regs
          run: |
-         
+          echo "::set-output name=AWS_SOURCE_REPO_PREFIX::${{ steps.vars.outputs.AWS_REPO_PREFIX }}"
           echo "::set-output name=AWS_SOURCE_REG_URL::${{ steps.ecr-dev-login.outputs.registry }}"
           echo 
           if [[ ${{ github.event.inputs.target_env }} == "int" ]]
@@ -105,6 +105,6 @@ jobs:
           metadata_path: buildfiles
           source_aws_registry: ${{ steps.img-regs.outputs.AWS_SOURCE_REG_URL }}
           target_aws_registry: ${{ steps.img-regs.outputs.AWS_TARGET_REG_URL }}
-        
+          source_aws_repo_prefix: ${{ steps.img-regs.outputs.AWS_SOURCE_REPO_PREFIX }}
         
 
