@@ -55,11 +55,11 @@ jobs:
           aws-access-key-id: ${{ secrets.AWS_DEV_ACCESS_KEY }}
           aws-secret-access-key: ${{ secrets.AWS_DEV_SECRET_KEY }}
           aws-region: ${{ secrets.AWS_DEV_REGION }}
-         if: github.event.inputs.platform == 'dev' && github.event.inputs.platform == 'aws'
+         if: github.event.inputs.source_env == 'dev' && github.event.inputs.platform == 'aws'
        -  name: ECR RnD Login
           id: ecr-dev-login
           uses: aws-actions/amazon-ecr-login@v1
-          if: github.event.inputs.platform == 'dev' && github.event.inputs.platform == 'aws'
+          if: github.event.inputs.source_env == 'dev' && github.event.inputs.platform == 'aws'
           
        - name: AWS Int login
          uses: aws-actions/configure-aws-credentials@v1
@@ -67,11 +67,11 @@ jobs:
             aws-access-key-id: ${{ secrets.AWS_INT_ACCESS_KEY }}
             aws-secret-access-key: ${{ secrets.AWS_INT_SECRET_KEY }}
             aws-region: ${{ secrets.AWS_INT_REGION }}
-         if: github.event.inputs.target_env == 'int' && (github.event.inputs.platform == 'aws') 
+         if: (github.event.inputs.target_env == 'int' || github.event.inputs.source_env == 'int') && (github.event.inputs.platform == 'aws') 
        - name: ECR Int Login
          id: ecr-int-login
          uses: aws-actions/amazon-ecr-login@v1
-         if: github.event.inputs.target_env == 'int' && (github.event.inputs.platform == 'aws')
+         if: (github.event.inputs.target_env == 'int' || github.event.inputs.source_env == 'int') && (github.event.inputs.platform == 'aws')
 
        - name: Configure AWS Credentials for s3
          uses: aws-actions/configure-aws-credentials@v1
