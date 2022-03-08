@@ -57,7 +57,7 @@ runs:
         
         echo "source_aws_repo_prefix  ${{ inputs.source_aws_repo_prefix }}"
         #--------------------------------------------Remove existing docker images------------------
-          docker images
+        #  docker images
         # docker rmi -f $(docker images -aq) 1> /dev/null
         #-----------------------------------------------------------------------------------------------
         
@@ -147,7 +147,7 @@ runs:
                        s=`docker push ${{ inputs.target_aws_registry }}/${{ inputs.source_aws_repo_prefix }}/${components[${cindex}]}:${tags[${cindex}]} || true`
                        echo "status ****$s******"
                        date
-                       if [[ "$s" == "" ]]
+                       if [[ "$s" =~ .*"digest: sha256".* ]]
                         then
                            echo "No repository"
                         else
@@ -166,7 +166,7 @@ runs:
         done
         
         #--------------------------------------------Remove existing docker images------------------
-          docker images
+       #   docker images
         # docker rmi -f $(docker images -aq) 1> /dev/null
 
         
