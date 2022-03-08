@@ -56,6 +56,8 @@ runs:
         fi
         
         echo "source_aws_repo_prefix  ${{ inputs.source_aws_repo_prefix }}"
+        echo "source_aws_registry  ${{ inputs.source_aws_registry }}"
+        echo "target_aws_registry  ${{ inputs.target_aws_registry }}"
         #--------------------------------------------Remove existing docker images------------------
         #  docker images
         # docker rmi -f $(docker images -aq) 1> /dev/null
