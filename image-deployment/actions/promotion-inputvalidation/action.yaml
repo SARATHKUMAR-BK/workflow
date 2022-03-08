@@ -34,8 +34,10 @@ runs:
           echo "Provide the proper platforms listed here [ ${valid_platform[*]} ]" 
           exit 1
         fi
+        echo "above"
         IFS="," read -a components <<< ${{ inputs.component }}
         IFS="," read -a tags <<< ${{ inputs.tag }}
+        echo "below"
           for cldp_component in ${!components[@]}
          do
           if [[ ! (" ${valid_components[*]} " =~ " ${components[$cldp_component]}: ${tags[$cldp_component]} ") ]]
