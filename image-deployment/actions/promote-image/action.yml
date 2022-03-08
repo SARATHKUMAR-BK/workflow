@@ -153,6 +153,14 @@ runs:
                   fi
                   
                   #------------------Target file is updated ------------------------------------------------#
+                  
+             if [[ ("${{inputs.components}}" =~ "all") ]]
+             then
+                 while IFS= read -r line
+                 do
+                   cp  $sourcebuildfile $targetbuildfile
+                 done < $sourcebuildfile
+             else
                   for cindex in ${!components[@]}
                   do
                     target_tag_present=`sed -n "/^${components[${cindex}]}: ${tags[${cindex}]}.*/p" $targetbuildfile || true`
@@ -166,6 +174,7 @@ runs:
                       sed -i "s/${components[${cindex}]}: ${tags[${cindex}]}.*/${components[${cindex}]}: ${tags[${cindex}]}: $sha_in_repo/g" $targetbuildfile
                     fi
                   done
+               fi
                   cat $targetbuildfile
          done
          
