@@ -64,7 +64,7 @@ runs:
         for pindex in ${!platforms[@]}
         do
                 sourcebuildfile="${platforms[${pindex}]}-${{ inputs.source_env }}-${{ inputs.app_version }}-deploy-builds.txt"
-                targetbuildfile="${platforms[${pindex}]}-${{ inputs.target_env }}-${{ inputs.app_version }}-deploy-builds.txt"
+                targetbuildfile="${platforms[${pindex}]}-${{ inputs.target_env }}-${{ inputs.app_version }}-promote-builds.txt"
                 
                  #--------------------Check source file and tags is present or not--------------------------------------------------#
                  
@@ -144,12 +144,18 @@ runs:
                      docker tag ${{ inputs.source_aws_registry }}/${{ inputs.source_aws_repo_prefix }}/${components[${cindex}]}:${tags[${cindex}]} ${{ inputs.target_aws_registry }}/${{ inputs.source_aws_repo_prefix }}/${components[${cindex}]}:${tags[${cindex}]}
                       docker push ${{ inputs.target_aws_registry }}/${{ inputs.source_aws_repo_prefix }}/${components[${cindex}]}:${tags[${cindex}]}
                   done
+                  
         for pindex in ${!platforms[@]}
         do
-          targetbuildfile=${platforms[${pindex}]}-${{ inputs.target_env }}-${{ inputs.app_version }}-deploy-builds.txt
+          targetbuildfile=${platforms[${pindex}]}-${{ inputs.target_env }}-${{ inputs.app_version }}-promote-builds.txt
           sourcebuildfile="${platforms[${pindex}]}-${{ inputs.source_env }}-${{ inputs.app_version }}-deploy-builds.txt"
           aws s3 cp $targetbuildfile s3://${{ inputs.bucket_name }}/${{ inputs.metadata_path }}/$targetbuildfile
           rm -f $targetbuildfile
           rm -f $sourcebuildfile 
         done
+        
+        #--------------------------------------------Remove existing docker images------------------
+          docker images
+        # docker rmi -f $(docker images -aq) 1> /dev/null
+
         
