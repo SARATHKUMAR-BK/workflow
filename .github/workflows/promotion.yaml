@@ -47,6 +47,7 @@ jobs:
             tag: ${{ github.event.inputs.tags }}
             platform: ${{ github.event.inputs.platform }}
             app_version: ${{ github.event.inputs.currentversion }}
+            validversion: ${{ steps.vars.outputs.CURRENT_MAJOR_VERSION }}
             
        - name: Configure AWS Credentials for dev ecr
          uses: aws-actions/configure-aws-credentials@v1
