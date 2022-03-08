@@ -46,7 +46,7 @@ jobs:
             component: ${{ github.event.inputs.components }}
             tag: ${{ github.event.inputs.tags }}
             platform: ${{ github.event.inputs.platform }}
-            app_version: ${{ github.event.inputs.currentversion }}
+            app_version: ${{ github.event.inputs.app_version }}
             validversion: ${{ steps.vars.outputs.CURRENT_MAJOR_VERSION }}
             
        - name: Configure AWS Credentials for dev ecr
@@ -105,8 +105,8 @@ jobs:
           components: ${{ github.event.inputs.components }}
           tags: ${{ github.event.inputs.tags }}
           app_version: ${{ github.event.inputs.app_version }}
-          bucket_name: cldp
-          metadata_path: buildfiles
+          bucket_name: ${{ steps.vars.outputs.S3_BUCKET }}
+          metadata_path: ${{ steps.vars.outputs.METADATA_PATH }}
           source_aws_registry: ${{ steps.img-regs.outputs.AWS_SOURCE_REG_URL }}
           target_aws_registry: ${{ steps.img-regs.outputs.AWS_TARGET_REG_URL }}
           source_aws_repo_prefix: ${{ steps.img-regs.outputs.AWS_SOURCE_REPO_PREFIX }}
