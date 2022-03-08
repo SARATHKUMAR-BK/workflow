@@ -45,7 +45,7 @@ runs:
           exit 1
         fi
         
-        if [[ !(" ${valid_env_pai[*]} " =~ " ${{ inputs.source_env }}-${{ inputs.target_env }} ") ]]
+        if [[ !(" ${valid_env_pair[*]} " =~ " ${{ inputs.source_env }}-${{ inputs.target_env }} ") ]]
         then
           echo "Cannot Promote Images from ${{ inputs.source_env }} to ${{ inputs.target_env }}"
           exit 1
