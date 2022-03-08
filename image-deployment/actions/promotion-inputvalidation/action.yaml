@@ -39,7 +39,7 @@ runs:
         echo "tags are : ${{ inputs.tag }}"
         components=($(echo ${{ inputs.component }} | sed -e 's\,\ \g'))
         tags=($(echo ${{ inputs.tag }} | sed -e 's\,\ \g'))
-        echo "component cout: ${!components[@]"
+        echo "component cout: ${!components[@]}"
         echo "below"
         for cldp_component in ${!components[@]}
         do
