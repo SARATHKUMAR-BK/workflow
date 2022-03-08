@@ -102,7 +102,20 @@ runs:
                   echo "User choose all component"
                  while IFS= read -r line
                  do
-                    echo "$line" 
+                    component_name=`echo "$line" | cut -d " " -f 1`
+                    tag_name=`echo "$line" | cut -d " " -f 1`
+                    sha_in_deplyfile=`echo "$line" | cut -d " " -f 3`
+                     docker pull ${{ inputs.source_aws_registry }}/${{ inputs.source_aws_repo_prefix }}/$component_name:$tag_name
+                     sha_in_repo=`docker inspect --format='{{.RepoDigests}}' ${{ inputs.source_aws_registry }}/${{ inputs.source_aws_repo_prefix }}/$component_name:$tag_name  | sed 's:^.\(.*\).$:\1:' | tr " " "\n" | grep ${{ inputs.source_aws_registry }}/${{ inputs.source_aws_repo_prefix }}/$component_name  | cut -d "@" -f 2`
+                      echo "sha_in_repo=== $sha_in_repo"
+                     if [[ "$sha_in_deplyfile" != "$sha_in_repo" ]]
+                     then
+                        echo "both sha is differ"
+                        echo "In deploy file--> $component_name:$tag_name=$sha_in_deplyfile"
+                         echo "In repo--> $component_name:$tag_name=$sha_in_repo"
+                         echo "Pls first deploy the $component_name:$tag_name=$sha_in_repo to ${{ inputs.source_env }}"
+                        exit 1
+                     fi  
                  done < $sourcebuildfile
              else
                  for cindex in ${!components[@]}
