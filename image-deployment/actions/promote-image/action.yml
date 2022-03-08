@@ -31,6 +31,9 @@ inputs:
   target_aws_registry:
     description: Source AWS registry
     required: true
+  source_aws_repo_prefix:
+    description: Source AWS Repo
+    required: true
 runs:
   using: composite
   steps:
@@ -51,6 +54,8 @@ runs:
         else
           tags=()
         fi
+        
+        echo "source_aws_repo_prefix  ${{ inputs.source_aws_repo_prefix }}"
         #--------------------------------------------Remove existing docker images------------------
           docker images
         # docker rmi -f $(docker images -aq) 1> /dev/null
@@ -90,7 +95,7 @@ runs:
                    sha_in_deplyfile=$(sed -n "/^${components[${cindex}]}: ${tags[${cindex}]}.*/p" $sourcebuildfile | awk '{print $3}' | tr -d [:space:])
                    echo "sha_in_deplyfile   $sha_in_deplyfile"
                    
-                   docker pull ${{ inputs.source_aws_registry }}/${components[${cindex}]}:${tags[${cindex}]}
+                   docker pull ${{ inputs.source_aws_registry }}/${{ inputs.source_aws_repo_prefix }}/${components[${cindex}]}:${tags[${cindex}]}
                    sha_in_repo=`docker inspect --format='{{.RepoDigests}}' ${{ inputs.source_aws_registry }}/${components[${cindex}]}:${tags[${cindex}]}  | sed 's:^.\(.*\).$:\1:' | tr " " "\n" | grep ${{ inputs.source_aws_registry }}/${components[${cindex}]}  | cut -d "@" -f 2`
                   # =`aws ecr describe-images --repository-name=${components[${cindex}]} --image-ids imageTag=${tags[${cindex}]} | jq '.imageDetails[0].imageDigest' -r`
                     echo "sha_in_repo=== $sha_in_repo"
@@ -136,8 +141,8 @@ runs:
                   for cindex in ${!components[@]}
                   do
  
-                     docker tag ${{ inputs.source_aws_registry }}/${components[${cindex}]}:${tags[${cindex}]} ${{ inputs.target_aws_registry }}/${components[${cindex}]}:${tags[${cindex}]}
-                      docker push ${{ inputs.target_aws_registry }}/${components[${cindex}]}:${tags[${cindex}]}
+                     docker tag ${{ inputs.source_aws_registry }}/${{ inputs.source_aws_repo_prefix }}/${components[${cindex}]}:${tags[${cindex}]} ${{ inputs.target_aws_registry }}/${{ inputs.source_aws_repo_prefix }}/${components[${cindex}]}:${tags[${cindex}]}
+                      docker push ${{ inputs.target_aws_registry }}/${{ inputs.source_aws_repo_prefix }}/${components[${cindex}]}:${tags[${cindex}]}
                   done
         for pindex in ${!platforms[@]}
         do
