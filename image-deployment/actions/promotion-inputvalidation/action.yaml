@@ -38,5 +38,4 @@ runs:
         IFS="," read -a tags <<< ${{ inputs.tag }}
 
        IFS="," read -a components <<< ${{ inputs.component }}
-        
       shell: bash
