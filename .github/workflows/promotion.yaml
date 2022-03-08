@@ -15,11 +15,11 @@ on:
         default: int
         required: true
       components:
-        description: "Components to promote (integration-server-10.5.22.04 integration-server-10.7.22.04 integration-server-10.11.22.04 universal-messaging- 10.5.22.04 universal-messaging-10.7.22.04 universal-messaging-10.11.22.04 terracotta-server-10.5.22.04 terracotta-server-10.7.22.04 terracotta-server- 10.11.22.04)"
+        description: "Components to promote ( all integration-server  universal-messaging terracotta-server)"
         default: terracotta-server
         required: true
       tags:
-        description: "Tags of corresponding components (applicable for dev and spro source envs)"
+        description: "Tags of corresponding components ( all 10.5.22.04 10.7.22.04 10.11.22.04 10.12.22.04)"
         required: false
       app_version:
         description: "Current App Version"
@@ -31,17 +31,34 @@ jobs:
     steps:
        - uses: actions/checkout@v2
          name: Checkout the current repository
-         
-       - name: Configure AWS Credentials for s3
+
+       - name: Apply Env File
+         id: vars
+         run: |
+          chmod 777 variable.env
+          ./variable.env
+
+       - name: Validate Inputs
+         uses: ./image-deployment/actions/promotion-inputvalidation
+         with:
+            target_env: ${{ github.event.inputs.target_env }}
+            source_env: ${{ github.event.inputs.source_env }}
+            component: ${{ github.event.inputs.components }}
+            tag: ${{ github.event.inputs.tags }}
+            platform: ${{ github.event.inputs.platform }}
+            app_version: ${{ github.event.inputs.currentversion }}
+            
+       - name: Configure AWS Credentials for dev ecr
          uses: aws-actions/configure-aws-credentials@v1
          with:
           aws-access-key-id: ${{ secrets.AWS_DEV_ACCESS_KEY }}
           aws-secret-access-key: ${{ secrets.AWS_DEV_SECRET_KEY }}
           aws-region: ${{ secrets.AWS_DEV_REGION }}
+         if: github.event.inputs.platform == 'dev' && github.event.inputs.platform == 'aws'
        -  name: ECR RnD Login
           id: ecr-dev-login
           uses: aws-actions/amazon-ecr-login@v1
-          if: github.event.inputs.platform == 'aws' || github.event.inputs.platform == 'all'
+          if: github.event.inputs.platform == 'dev' && github.event.inputs.platform == 'aws'
           
        - name: AWS Int login
          uses: aws-actions/configure-aws-credentials@v1
@@ -49,11 +66,11 @@ jobs:
             aws-access-key-id: ${{ secrets.AWS_INT_ACCESS_KEY }}
             aws-secret-access-key: ${{ secrets.AWS_INT_SECRET_KEY }}
             aws-region: ${{ secrets.AWS_INT_REGION }}
-         if: github.event.inputs.target_env == 'int' && (github.event.inputs.platform == 'aws' || github.event.inputs.platform == 'all') 
+         if: github.event.inputs.target_env == 'int' && (github.event.inputs.platform == 'aws') 
        - name: ECR Int Login
          id: ecr-int-login
          uses: aws-actions/amazon-ecr-login@v1
-         if: github.event.inputs.target_env == 'int' && (github.event.inputs.platform == 'aws' || github.event.inputs.platform == 'all')
+         if: github.event.inputs.target_env == 'int' && (github.event.inputs.platform == 'aws')
 
        - name: Configure AWS Credentials for s3
          uses: aws-actions/configure-aws-credentials@v1
@@ -62,13 +79,7 @@ jobs:
           aws-secret-access-key: ${{ secrets.SECRETKEY }}
           aws-region: ${{ secrets.AWS_REGION }}
 
-
-       - name: Apply Env File
-         id: vars
-         run: |
-          chmod 777 variable.env
-          ./variable.env
-          
+ 
        - name: Set up Reg URLs
          id: img-regs
          run: |
@@ -82,15 +93,7 @@ jobs:
             echo "::set-output name=AWS_TARGET_REG_URL::${{ steps.ecr-dev-login.outputs.registry }}"
           fi
 
-       - name: Validate Inputs
-         uses: ./image-deployment/actions/promotion-inputvalidation
-         with:
-            target_env: ${{ github.event.inputs.target_env }}
-            source_env: ${{ github.event.inputs.source_env }}
-            component: ${{ github.event.inputs.components }}
-            tag: ${{ github.event.inputs.tags }}
-            platform: ${{ github.event.inputs.platform }}
-            app_version: ${{ github.event.inputs.currentversion }}
+
             
        - name: Promote Images to Env
          uses: ./image-deployment/actions/promote-image
