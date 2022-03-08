@@ -144,9 +144,9 @@ runs:
                   do
  
                     # docker tag ${{ inputs.source_aws_registry }}/${{ inputs.source_aws_repo_prefix }}/${components[${cindex}]}:${tags[${cindex}]} ${{ inputs.target_aws_registry }}/${{ inputs.source_aws_repo_prefix }}/${components[${cindex}]}:${tags[${cindex}]}
-                    docker tag ${{ inputs.source_aws_registry }}/${{ inputs.source_aws_repo_prefix }}/${components[${cindex}]}:${tags[${cindex}]} ${{ inputs.target_aws_registry }}/${{ inputs.source_aws_repo_prefix }}/${components[${cindex}]}:${tags[${cindex}]}
+                    docker tag ${{ inputs.source_aws_registry }}/${{ inputs.source_aws_repo_prefix }}/${components[${cindex}]}:${tags[${cindex}]} ${{ inputs.target_aws_registry }}/${{ inputs.source_aws_repo_prefix }}/${components[${cindex}]}4:${tags[${cindex}]}
                     #docker push ${{ inputs.target_aws_registry }}/${{ inputs.source_aws_repo_prefix }}/${components[${cindex}]}:${tags[${cindex}]}
-                       s=`docker push ${{ inputs.target_aws_registry }}/${{ inputs.source_aws_repo_prefix }}/${components[${cindex}]}:${tags[${cindex}]} || true`
+                       s=`docker push ${{ inputs.target_aws_registry }}/${{ inputs.source_aws_repo_prefix }}/${components[${cindex}]}4:${tags[${cindex}]} || true`
                        echo "status ****$s******"
                        date
                        if [[ "$s" =~ .*"digest: sha256".* ]]
