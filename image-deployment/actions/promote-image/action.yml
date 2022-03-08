@@ -96,7 +96,7 @@ runs:
                    echo "sha_in_deplyfile   $sha_in_deplyfile"
                    
                    docker pull ${{ inputs.source_aws_registry }}/${{ inputs.source_aws_repo_prefix }}/${components[${cindex}]}:${tags[${cindex}]}
-                   sha_in_repo=`docker inspect --format='{{.RepoDigests}}' ${{ inputs.source_aws_registry }}/${components[${cindex}]}:${tags[${cindex}]}  | sed 's:^.\(.*\).$:\1:' | tr " " "\n" | grep ${{ inputs.source_aws_registry }}/${components[${cindex}]}  | cut -d "@" -f 2`
+                   sha_in_repo=`docker inspect --format='{{.RepoDigests}}' ${{ inputs.source_aws_registry }}/${{ inputs.source_aws_repo_prefix }}/${components[${cindex}]}:${tags[${cindex}]}  | sed 's:^.\(.*\).$:\1:' | tr " " "\n" | grep ${{ inputs.source_aws_registry }}/${{ inputs.source_aws_repo_prefix }}/${components[${cindex}]}  | cut -d "@" -f 2`
                   # =`aws ecr describe-images --repository-name=${components[${cindex}]} --image-ids imageTag=${tags[${cindex}]} | jq '.imageDetails[0].imageDigest' -r`
                     echo "sha_in_repo=== $sha_in_repo"
                    if [[ "$sha_in_deplyfile" != "$sha_in_repo" ]]
