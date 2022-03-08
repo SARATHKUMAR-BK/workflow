@@ -39,9 +39,4 @@ runs:
 
        IFS="," read -a components <<< ${{ inputs.component }}
         
-        if [[ ${#components[@]} -ne ${#tags[@]} ]]
-        then
-          echo "Image and tags count are mismatching , Pls provide crt image and tag pair"
-          exit 1
-        fi
       shell: bash
