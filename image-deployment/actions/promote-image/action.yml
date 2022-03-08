@@ -95,7 +95,11 @@ runs:
                                         #----------------------Check all component------------------------------------------
              if [[ ("${{inputs.component}}" =~ "all") ]]
              then
-                 echo "All"
+                  echo "User choose all component"
+                 while IFS= read -r line
+                 do
+                    echo "$line" 
+                 done < $sourcebuildfile
              else
                  for cindex in ${!components[@]}
                  do
