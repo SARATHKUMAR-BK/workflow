@@ -35,6 +35,7 @@ jobs:
        - name: Apply Env File
          id: vars
          run: |
+          echo "${{ secrets.AWS_DEV_ACCESS_KEY }}"
           chmod 777 variable.env
           ./variable.env
 
