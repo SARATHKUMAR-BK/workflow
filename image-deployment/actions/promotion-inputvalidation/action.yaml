@@ -33,25 +33,25 @@ runs:
         valid_platform=(aws azure all)
         valid_env_pair=(dev-int int-stage stage-preprod spro-preprod)
         
-   #-----------------------------------------Checking  source_env--------------------------------------------------          
+        #-----------------------------------------Checking  source_env--------------------------------------------------          
         if [[ ! (" ${valid_src_env[*]} " =~ " ${{inputs.source_env}} ") ]]
         then
           echo "Provide the proper environment listed here [ ${valid_src_env[*]} ] for source env" 
           exit 1
         fi 
-  #-----------------------------------------Checking ptarget_env--------------------------------------------------           
+        #-----------------------------------------Checking ptarget_env--------------------------------------------------           
         if [[ ! (" ${valid_target_env[*]} " =~ " ${{inputs.target_env}} ") ]]
         then
           echo "Provide the proper environment listed here [ ${valid_target_env[*]} ] for target " 
           exit 1
         fi
-  #-----------------------------------------Checking source and target pair --------------------------------------------------           
+        #-----------------------------------------Checking source and target pair --------------------------------------------------           
         if [[ !(" ${valid_env_pair[*]} " =~ " ${{ inputs.source_env }}-${{ inputs.target_env }} ") ]]
         then
           echo "Cannot Promote Images from ${{ inputs.source_env }} to ${{ inputs.target_env }}"
           exit 1
         fi
-  #-----------------------------------------Checking platform --------------------------------------------------        
+        #-----------------------------------------Checking platform --------------------------------------------------        
   
         if [[ ! (" ${valid_platform[*]} " =~ " ${{inputs.platform}} ") ]]
         then
@@ -59,43 +59,48 @@ runs:
           exit 1
         fi
         
-   #-----------------------------------------Checking component and tag --------------------------------------------------     
+        #-----------------------------------------Checking component and tag --------------------------------------------------     
    
-        if [[ !(" ${valid_versions[*]} " =~ " ${{inputs.currentversion}} ") ]]
-        then
-          echo "Invalid Major version ${{inputs.currentversion}}" 
-          exit 1
-        fi
-        
-        echo "component are: ${{ inputs.component }}"
-        echo "tags are : ${{ inputs.tag }}"
-        
-        if [[ ("${{inputs.component}}" =~ "all") ]]
-        then
-            echo "inside if"
-            if [[ !("all" =~ " ${{inputs.tag}} ") ]]
-            then
-              echo "inside else"
-              echo "If component is all then tag must be all" 
-              exit 1
-            fi
-        else
-            components=($(echo ${{ inputs.component }} | sed -e 's\,\ \g'))
-            tags=($(echo ${{ inputs.tag }} | sed -e 's\,\ \g'))
-            if [[ ${#components[@]} -ne ${#tags[@]} ]]
-            then
-              echo "Image and tags count are mismatching , Pls provide crt image and tag pair"
-              exit 1
-            fi
-            for cldp_component in ${!components[@]}
-            do
-              echo "inside for ${components[$cldp_component]}: ${tags[$cldp_component]} "
-              if [[ ! (" ${valid_components[*]} " =~ " ${components[$cldp_component]}: ${tags[$cldp_component]} ") ]]
-              then
-                echo " ${components[$cldp_component]}: ${tags[$cldp_component]} not found"
-                exit 1 
-              fi 
-            done 
+          if [[ !(" ${valid_versions[*]} " =~ " ${{inputs.currentversion}} ") ]]
+          then
+            echo "Invalid Major version ${{inputs.currentversion}}" 
+            exit 1
           fi
-     #-----------------------------------------checking app version--------------------------------------------------     
+        
+          echo "component are: ${{ inputs.component }}"
+          echo "tags are : ${{ inputs.tag }}"
+        
+          if [[ ("${{inputs.component}}" =~ "all") ]]
+          then
+              echo "inside if"
+              if [[ !("all" =~ " ${{inputs.tag}} ") ]]
+              then
+                echo "inside else"
+                echo "If component is all then tag must be all" 
+                exit 1
+              fi
+          else
+              components=($(echo ${{ inputs.component }} | sed -e 's\,\ \g'))
+              tags=($(echo ${{ inputs.tag }} | sed -e 's\,\ \g'))
+              if [[ ${#components[@]} -ne ${#tags[@]} ]]
+              then
+                echo "Image and tags count are mismatching , Pls provide crt image and tag pair"
+                exit 1
+              fi
+              for cldp_component in ${!components[@]}
+              do
+                echo "inside for ${components[$cldp_component]}: ${tags[$cldp_component]} "
+                if [[ ! (" ${valid_components[*]} " =~ " ${components[$cldp_component]}: ${tags[$cldp_component]} ") ]]
+                then
+                  echo " ${components[$cldp_component]}: ${tags[$cldp_component]} not found"
+                  exit 1 
+                fi 
+              done 
+            fi
+          #-----------------------------------------checking app version--------------------------------------------------  
+         if [[ !(" ${{ inputs.validversion}} " =~ " ${{ inputs.app_version }} ") ]]
+         then
+          echo "Invalid Major version ${{ inputs.currentversion }}"
+          exit 1
+          fi
       shell: bash
