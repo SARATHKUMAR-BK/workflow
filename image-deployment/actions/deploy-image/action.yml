@@ -72,8 +72,8 @@ runs:
       
       if [[ ("${{ inputs.target_env }}" = "int") || ("${{ inputs.target_env }}" = "stage") || ("${{ inputs.target_env }}" = "preprod") ]]
       then
-        promotion_file="aws-${{ inputs.target_env }}-${{ inputs.target_env }}-${{ inputs.app_version }}-promote-builds.txt"
-	lookforfile=$(aws s3 ls s3://${{inputs.bucket_name}}/${{inputs.metadata_path}}/$promotion_file || true)
+       promotion_file="aws-${{ inputs.target_env }}-${{ inputs.target_env }}-${{ inputs.app_version }}-promote-builds.txt"
+       lookforfile=$(aws s3 ls s3://${{inputs.bucket_name}}/${{inputs.metadata_path}}/$promotion_file || true)
         if [[ "$lookforfile" == "" ]]
             then
               echo "ERR: Promotion file is not present. Please check whether we have promoted images in Target environment."
