@@ -22,6 +22,8 @@ runs:
     - name: Validate Image
       run: |
           touch ./shafile.txt
+          components=()
+          tags=()          
           if [[ ("${{inputs.component}}" =~ "all") ]]
           then
                 components=()
@@ -30,18 +32,20 @@ runs:
                 for i in `echo ${{ inputs.image_with_tag }} | sed -e 's\,\ \g' `;
                 do
                     com=`echo $i | cut -d ":" -f 1` 
-                    components+=($s)
+                    components+=($com)
                     tag=`echo $i | cut -d ":" -f 2`
                     tags+=($tag)
                 done
                 echo " component: ${components[@]}"
                 echo " tags: ${tags[@]}"
-                exit 1
+                
           else
                 components=($(echo ${{ inputs.component }} | sed -e 's\,\ \g'))
                 echo "$components"
                 tags=($(echo ${{ inputs.tag }} | sed -e 's\,\ \g'))
                 echo "$tags"
+                exit 1
+            fi
                 for cldp_component in ${!components[@]}
                     do
                       echo "AWS REPO: ${{ inputs.source_aws_repo_prefix }}"
@@ -68,5 +72,4 @@ runs:
                 echo "-----------SHA FILE--------------"
                 cat shafile.txt
                 echo "-----------SHA FILE--------------"
-            fi
       shell: bash
