@@ -123,15 +123,15 @@ runs:
             
             for component_index in ${!components[@]}
             do
-              lookforcomponent=`sed -n "/^${components[${component_index}]}: ${tags[${component_index}]}.*/p" $deployment_file || true`
+              tag=`echo "${tags[${component_index}]}"  | cut -d "_" -f 1`
+              echo "${tags[${component_index}]} ---> $tag"
+              lookforcomponent=`sed -n "/^${components[${component_index}]}: $tag.*/p" $deployment_file || true`
               shaID=$(grep -i "${components[${component_index}]}: ${tags[${component_index}]}" shafile.txt | cut -d " " -f 3)
               echo "SHAID : $shaID"
             if [[ "$lookforcomponent" = "" ]]
               then
                       echo "${components[${component_index}]}: ${tags[${component_index}]}: $shaID" >> $deployment_file
-              else
-                      tag=`echo "${tags[${component_index}]}"  | cut -d "_" -f 1`
-                      echo "${tags[${component_index}]} ---> $tag"
+              else     
                       sed -i "s/${components[${component_index}]}: $tag.*/${components[${component_index}]}: ${tags[${component_index}]}: $shaID/g" $deployment_file
               fi
             done
