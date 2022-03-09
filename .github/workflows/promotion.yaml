@@ -19,7 +19,7 @@ on:
         default: terracotta-server
         required: true
       tags:
-        description: "Tags of corresponding components ( all 10.5.22.04 10.7.22.04 10.11.22.04 10.12.22.04)"
+        description: "Tags of corresponding components ( all or specific tag for the component )"
         required: false
       app_version:
         description: "Current App Version"
