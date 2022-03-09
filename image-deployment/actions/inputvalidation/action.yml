@@ -65,4 +65,11 @@ runs:
                 fi 
               done
             fi
+          #-----------------------------------------checking app version--------------------------------------------------  
+          echo "validversion  = ${{ inputs.validversion}}   app_version=${{ inputs.app_version }}"
+          if [[ !(" ${{ inputs.validversion}} " == " ${{ inputs.app_version }} ") ]]
+          then
+            echo "Invalid Major version ${{ inputs.app_version }}"
+          exit 1
+          fi
       shell: bash
