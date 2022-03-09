@@ -2,6 +2,13 @@ name: CLDP Promotion Job
 on:
   workflow_dispatch:
     inputs:
+      choice:
+        type: choice
+        description: Make a choice
+        options:
+        - foo
+        - bar
+        - baz
       platform:
         description: "Platform (aws,azure,all)"
         default: aws
