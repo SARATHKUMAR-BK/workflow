@@ -29,7 +29,7 @@ runs:
       run: |
         valid_src_env=(dev spro int stage preprod)
         valid_target_env=(int stage preprod prod)
-        valid_components=("integration-server: 10.5.22.04" "integration-server: 10.7.22.04" "integration-server: 10.11.22.04" "universal-messaging: 10.5.22.04" "universal-messaging: 10.7.22.04" "universal-messaging: 10.11.22.04" "terracotta-server: 10.5.22.04" "terracotta-server: 10.7.22.04" "terracotta-server: 10.11.22.04" )
+        valid_components=("integration-server" "universal-messaging" "terracotta-server" )
         valid_platform=(aws azure all)
         valid_env_pair=(dev-int int-stage stage-preprod spro-preprod)
         
@@ -39,7 +39,7 @@ runs:
           echo "Provide the proper environment listed here [ ${valid_src_env[*]} ] for source env" 
           exit 1
         fi 
-        #-----------------------------------------Checking ptarget_env--------------------------------------------------           
+        #-----------------------------------------Checking target_env--------------------------------------------------           
         if [[ ! (" ${valid_target_env[*]} " =~ " ${{inputs.target_env}} ") ]]
         then
           echo "Provide the proper environment listed here [ ${valid_target_env[*]} ] for target " 
@@ -60,16 +60,7 @@ runs:
         fi
         
         #-----------------------------------------Checking component and tag --------------------------------------------------     
-   
-          if [[ !(" ${valid_versions[*]} " =~ " ${{inputs.currentversion}} ") ]]
-          then
-            echo "Invalid Major version ${{inputs.currentversion}}" 
-            exit 1
-          fi
-        
-          echo "component are: ${{ inputs.component }}"
-          echo "tags are : ${{ inputs.tag }}"
-        
+  
           if [[ ("${{inputs.component}}" =~ "all") ]]
           then
               echo "inside if"
@@ -89,10 +80,10 @@ runs:
               fi
               for cldp_component in ${!components[@]}
               do
-                echo "inside for ${components[$cldp_component]}: ${tags[$cldp_component]} "
-                if [[ ! (" ${valid_components[*]} " =~ " ${components[$cldp_component]}: ${tags[$cldp_component]} ") ]]
+                
+                if [[ ! (" ${valid_components[*]} " =~ "${components[$cldp_component]}") ]]
                 then
-                  echo " ${components[$cldp_component]}: ${tags[$cldp_component]} not found"
+                  echo " ${components[$cldp_component]} not found"
                   exit 1 
                 fi 
               done 
@@ -101,7 +92,7 @@ runs:
           echo "validversion  = ${{ inputs.validversion}}   app_version=${{ inputs.app_version }}"
          if [[ !(" ${{ inputs.validversion}} " == " ${{ inputs.app_version }} ") ]]
          then
-          echo "Invalid Major version ${{ inputs.currentversion }}"
+          echo "Invalid Major version ${{ inputs.app_version }}"
           exit 1
           fi
       shell: bash
