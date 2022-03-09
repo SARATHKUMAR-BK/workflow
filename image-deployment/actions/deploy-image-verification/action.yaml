@@ -58,9 +58,9 @@ runs:
                       else
                         tag_present=$(aws ecr describe-images --repository-name=$repo_present --query 'sort_by(imageDetails,& imagePushedAt)[*].imageTags[0]' --output yaml | grep ${tags[${cldp_component}]} | tail -n 1 | awk -F'- ' '{print $2}')
                         echo "TAG: $tag_present"
-                        shaID=$(aws ecr describe-images --repository-name=${{ inputs.source_aws_repo_prefix }}/${components[${cldp_component}]} --image-ids imageTag=${tags[${cldp_component}]}  | jq '.imageDetails[0].imageDigest' -r)
+                        shaID=$(aws ecr describe-images --repository-name=${{ inputs.source_aws_repo_prefix }}/${components[${cldp_component}]} --image-ids imageTag=$tag_present  | jq '.imageDetails[0].imageDigest' -r)
                         echo "Info: Image present in AWS ECR."
-                        echo "${components[${cldp_component}]}: ${tags[${cldp_component}]}: $shaID" >> shafile.txt
+                        echo "${components[${cldp_component}]}: $tag_present: $shaID" >> shafile.txt
                       fi
                     done
                 echo "-----------SHA FILE--------------"
