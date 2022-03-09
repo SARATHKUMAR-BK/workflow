@@ -53,7 +53,7 @@ runs:
                       echo "repo_present: $repo_present"
                       if [[ "$repo_present" = "" ]]
                         then
-                          echo "ERR: Image is not present in AWS ECR. Please promote to ECR"
+                          echo "ERR: ${{ inputs.source_aws_repo_prefix }}/${components[${cldp_component}]} Image is not present in AWS ECR. Please promote to ECR"
                           exit 1
                       else
                       aws ecr describe-images --repository-name=$repo_present --query 'sort_by(imageDetails,& imagePushedAt)[*].imageTags[0]' --output yaml
