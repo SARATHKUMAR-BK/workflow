@@ -32,6 +32,19 @@ jobs:
        - uses: actions/checkout@v2
          name: Checkout the current repository
 
+       - name: Details
+         id: shell
+         run: |
+           s="secrets.AWS_DEV_REGION"
+           echo "::set-output name=sec::secrets.AWS_DEV_REGION"
+         shell: bash
+         
+       - name: Details
+         id: shell2
+         run: |
+           echo "${{ steps.shell.outputs.sec }}"
+         shell: bash 
+         
        - name: Apply Env File
          id: vars
          run: |
