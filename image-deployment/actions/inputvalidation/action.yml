@@ -16,13 +16,16 @@ inputs:
   app_version:
     description: App version
     required: true
+  validversion:
+    description: "valid major versions"
+    required: true 
 runs:
   using: composite
   steps:
     - name: Validate Inputs
       run: |
-        valid_env=(dev spro int stage)
-        valid_components=("integration-server: 10.5.22.04" "integration-server: 10.7.22.04" "integration-server: 10.11.22.04" "universal-messaging: 10.5.22.04" "universal-messaging: 10.7.22.04" "universal-messaging: 10.11.22.04" "terracotta-server: 10.5.22.04" "terracotta-server: 10.7.22.04" "terracotta-server: 10.11.22.04" )
+        valid_env=(dev spro int stage preprod prod)
+        valid_components=("integration-server" "universal-messaging" "terracotta-server" )
         valid_platform=(aws azure all)
         if [[ ! (" ${valid_env[*]} " =~ " ${{inputs.target_env}} ") ]]
         then
@@ -34,19 +37,31 @@ runs:
           echo "Provide the proper platforms listed here [ ${valid_platform[*]} ]" 
           exit 1
         fi
-        IFS="," read -a components <<< ${{ inputs.component }}
-        IFS="," read -a tags <<< ${{ inputs.tag }}
-        if [[ ${#components[@]} -ne ${#tags[@]} ]]
-        then
-          echo "Image and tags count are mismatching , Pls provide crt image and tag pair"
-          exit 1
-        fi
-        for cldp_component in ${!components[@]}
-        do
-          if [[ ! (" ${valid_components[*]} " =~ " ${components[$cldp_component]}: ${tags[$cldp_component]} ") ]]
+        
+          if [[ ("${{inputs.component}}" =~ "all") ]]
           then
-            echo " ${components[$cldp_component]}: ${tags[$cldp_component]} not found"
-            exit 1 
-          fi 
-        done
+              echo "inside if"
+              if [[ !("all" =~ "${{inputs.tag}}") ]]
+              then
+                echo "inside else"
+                echo "If component is all then tag must be all" 
+                exit 1
+              fi
+          else
+          
+              IFS="," read -a components <<< ${{ inputs.component }}
+              IFS="," read -a tags <<< ${{ inputs.tag }}
+              if [[ ${#components[@]} -ne ${#tags[@]} ]]
+              then
+                echo "Image and tags count are mismatching , Pls provide crt image and tag pair"
+                exit 1
+              fi
+              for cldp_component in ${!components[@]}
+              do
+                if [[ ! (" ${valid_components[*]} " =~ "${components[$cldp_component]}") ]]
+                then
+                  echo " ${components[$cldp_component]} name is wrong"
+                  exit 1 
+                fi 
+              done
       shell: bash
