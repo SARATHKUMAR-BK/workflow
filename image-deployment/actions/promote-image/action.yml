@@ -156,10 +156,9 @@ runs:
                   
              if [[ ("${{inputs.components}}" =~ "all") ]]
              then
-                 while IFS= read -r line
-                 do
-                   cp  $sourcebuildfile $targetbuildfile
-                 done < $sourcebuildfile
+                cp  $sourcebuildfile $targetbuildfile
+                echo "target file" 
+                cat $targetbuildfile
              else
                   for cindex in ${!components[@]}
                   do
@@ -179,12 +178,23 @@ runs:
          done
          
          #------------------------------------------------pushed to target repo------------------------------------#
+             if [[ ("${{inputs.components}}" =~ "all") ]]
+             then
+                 while IFS= read -r line
+                 do  
+                    component_name=`echo "$line" | cut -d " " -f 1 | sed 's/://'`
+                    tag_name=`echo "$line" | cut -d " " -f 2 | sed 's/://'`
+                    docker tag ${{ inputs.source_aws_registry }}/${{ inputs.source_aws_repo_prefix }}/$component_name:$tag_name ${{ inputs.target_aws_registry }}/${{ inputs.source_aws_repo_prefix }}/$component_name:$tag_name
+                    docker push ${{ inputs.target_aws_registry }}/${{ inputs.source_aws_repo_prefix }}/$component_name:$tag_name
+                 done < $targetbuildfile
+             else
                   for cindex in ${!components[@]}
                   do
  
                     docker tag ${{ inputs.source_aws_registry }}/${{ inputs.source_aws_repo_prefix }}/${components[${cindex}]}:${tags[${cindex}]} ${{ inputs.target_aws_registry }}/${{ inputs.source_aws_repo_prefix }}/${components[${cindex}]}:${tags[${cindex}]}
                     docker push ${{ inputs.target_aws_registry }}/${{ inputs.source_aws_repo_prefix }}/${components[${cindex}]}:${tags[${cindex}]}
                   done
+             fi
                   
         for pindex in ${!platforms[@]}
         do
