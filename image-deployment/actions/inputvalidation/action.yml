@@ -64,4 +64,5 @@ runs:
                   exit 1 
                 fi 
               done
+            fi
       shell: bash
