@@ -69,7 +69,43 @@ runs:
       fi
       echo "component----->${components[@]}"
       echo "tags------------>${tags[@]}"
-      echo " "
+      
+      if [[ ("${{ inputs.target_env }}" = "int") || ("${{ inputs.target_env }}" = "stage") || ("${{ inputs.target_env }}" = "preprod") ]]
+      then
+        promotion_file="aws-${{ inputs.target_env }}-${{ inputs.target_env }}-${{ inputs.app_version }}-promote-builds.txt"
+		    lookforfile=$(aws s3 ls s3://${{inputs.bucket_name}}/${{inputs.metadata_path}}/$promotion_file || true)
+        if [[ "$lookforfile" == "" ]]
+            then
+              echo "ERR: Promotion file is not present. Please check whether we have promoted images in Target environment."
+              exit 1
+            else
+              # copies contents of the file to S3 existing file
+              aws s3 cp s3://${{inputs.bucket_name}}/${{inputs.metadata_path}}/$promotion_file $promotion_file
+        fi
+        for cldp_component in ${!components[@]}
+            do
+              lookforcomponent=`sed -n "/^${components[${cldp_component}]}: ${tags[${cldp_component}]}/p" $promotion_file || true`
+              if [[ "$lookforcomponent" = "" ]]
+              then
+                      echo "${components[${cldp_component}]}: ${tags[${cldp_component}]}"
+                      echo "ERR: Image not promoted to ECR"
+                      exit 1
+                      
+              else
+                      shaID=$(grep -iE "${components[${cldp_component}]}:" shafile.txt | cut -d " " -f 3)
+                      echo "CHECKSUM"
+                      checksum=$(grep -i $shaID $promotion_file || true)
+                      if [[ "$checksum" == "" ]]
+                        then
+                          echo "ERR: SHA MISS MATCH FOR ${components[${cldp_component}]}: ${tags[${cldp_component}]}"
+                          exit 1
+                        else
+                          echo "INFO: SHA MATCHED FOR ${components[${cldp_component}]}: ${tags[${cldp_component}]}"
+                      fi
+              fi
+            done
+        fi
+
           for platforms_index in ${!platforms[@]} 
           do
             deployment_file="${platforms[${platforms_index}]}-${{ inputs.target_env }}-${{ inputs.app_version }}-deploy-builds.txt"
