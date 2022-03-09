@@ -25,7 +25,7 @@ runs:
           if [[ ("${{inputs.component}}" =~ "all") ]]
           then
                 echo "inputs.component ${{inputs.image_with_tag}} "
-                components=($(echo ${{ inputs.component }} | sed -e 's\,\ \g'))
+                components=($(echo ${{ inputs.image_with_tag }} | sed -e 's\,\ \g'))
                 echo "$components"
                 exit 1
           else
