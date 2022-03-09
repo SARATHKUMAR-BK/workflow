@@ -13,6 +13,7 @@ on:
         description: "Platform (aws,azure,all)"
         default: aws
         required: true
+        options: ['production', 'staging', 'development']
       source_env:
         description: "Source Environment(dev spro int stage preprod)"
         default: dev
