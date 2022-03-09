@@ -7,11 +7,11 @@ on:
         default: dev
         required: true
       component:
-        description: Name of the component(Possible values are integration-server,universal-messaging)
+        description: Name of the component(Possible values are all integration-server,universal-messaging)
         default: terracotta-server
         required: true
       tag:
-        description: Mention the tag of the image ( Example 10.11.22.04 10.5.22.04,10.12.22.04)
+        description: Mention the tag of the image ( Example all or specific tag)
         default: "10.11.22.04"
         required: true
       platform:
@@ -31,6 +31,22 @@ jobs:
        - uses: actions/checkout@v2
          name: Checkout the current repository
          
+       - name: Apply Env File
+         id: vars
+         run: |
+            chmod 777 variable.env
+             ./variable.env 
+
+       - name: Validate Inputs
+         uses: ./image-deployment/actions/inputvalidation
+         with:
+            target_env: ${{ github.event.inputs.target_env }}
+            component: ${{ github.event.inputs.component }}
+            tag: ${{ github.event.inputs.tag }}
+            platform: ${{ github.event.inputs.platform }}
+            app_version: ${{ github.event.inputs.currentversion }}
+            validversion: ${{ steps.vars.outputs.CURRENT_MAJOR_VERSION }}
+            
        - name: Configure AWS Credentials for Dev
          uses: aws-actions/configure-aws-credentials@v1
          with:
@@ -54,19 +70,6 @@ jobs:
           uses: aws-actions/amazon-ecr-login@v1
           if: github.event.inputs. target_env == 'int' && github.event.inputs.platform == 'aws'
           
-       - name: Validate Inputs
-         uses: ./image-deployment/actions/inputvalidation
-         with:
-            target_env: ${{ github.event.inputs.target_env }}
-            component: ${{ github.event.inputs.component }}
-            tag: ${{ github.event.inputs.tag }}
-            platform: ${{ github.event.inputs.platform }}
-            app_version: ${{ github.event.inputs.currentversion }}
-       - name: Apply Env File
-         id: vars
-         run: |
-            chmod 777 variable.env
-             ./variable.env
             
        - name: Set up Reg URLs
          id: img-regs
@@ -87,6 +90,7 @@ jobs:
             component: ${{ github.event.inputs.component }}
             source_aws_registry: ${{ steps.img-regs.outputs.AWS_TARGET_REG_URL }}
             source_aws_repo_prefix: ${{ steps.img-regs.outputs.AWS_SOURCE_REPO_PREFIX }}
+            image_with_tag: ${{ steps.vars.outputs.DEV_REFRESH_IMAGES }}
             
        - name: Configure AWS Credentials for s3 files
          uses: aws-actions/configure-aws-credentials@v1
