@@ -24,9 +24,18 @@ runs:
           touch ./shafile.txt
           if [[ ("${{inputs.component}}" =~ "all") ]]
           then
+                components=()
+                tags=()
                 echo "inputs.component ${{inputs.image_with_tag}} "
-                components=($(echo ${{ inputs.image_with_tag }} | sed -e 's\,\ \g'))
-                echo "$components"
+                for i in `echo ${{ inputs.image_with_tag }} | sed -e 's\,\ \g' `;
+                do
+                    com=`echo $i | cut -d ":" -f 1` 
+                    components+=($s)
+                    tag=`echo $i | cut -d ":" -f 2`
+                    tags+=($tag)
+                done
+                echo " component: ${components[@]}"
+                echo " tags: ${tags[@]}"
                 exit 1
           else
                 components=($(echo ${{ inputs.component }} | sed -e 's\,\ \g'))
