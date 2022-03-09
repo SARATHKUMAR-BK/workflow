@@ -13,43 +13,49 @@ inputs:
   source_aws_repo_prefix:
     description: Source AWS Repo
     required: true
-  
+  image_with_tag:
+    description: image and tag pair
+    required: true 
 runs:
   using: composite
   steps:
     - name: Validate Image
       run: |
-        components=($(echo ${{ inputs.component }} | sed -e 's\,\ \g'))
-        echo "$components"
-        tags=($(echo ${{ inputs.tag }} | sed -e 's\,\ \g'))
-        echo "$tags"
-        touch ./shafile.txt
-        echo "AWS REPO: ${{ inputs.source_aws_repo_prefix }}"
-        echo "AWS registry: ${{ inputs.source_aws_registry }}"
-        for cldp_component in ${!components[@]}
-            do
-              echo "AWS REPO: ${{ inputs.source_aws_repo_prefix }}"
-              aws ecr describe-repositories | jq -r .repositories[].repositoryName
-              repo_present=$(aws ecr describe-repositories | jq -r .repositories[].repositoryName | grep -E "${{ inputs.source_aws_repo_prefix }}/${components[${cldp_component}]}$" || true)
-              echo "repo_present: $repo_present"
-              tag_present=$(aws ecr describe-images --repository-name=$repo_present --query 'sort_by(imageDetails,& imagePushedAt)[*].imageTags[0]'  | grep "${tags[${cldp_component}]}" || true)
-              echo "TAG: $tag_present"
-              echo " $repo_present $tag_present "
-              if [[ "$repo_present" = "" ]]
-                then
-                  echo "ERR: Image is not present in AWS ECR. Please promote to ECR"
-                  exit 1
-              elif [[ "$tag_present" = "" ]]
-                then
-                  echo "ERR: Tag is not present in AWS ECR. Please check whether the tag you provided is proper"
-                  exit 1
-              else
-                shaID=$(aws ecr describe-images --repository-name=${{ inputs.source_aws_repo_prefix }}/${components[${cldp_component}]} --image-ids imageTag=${tags[${cldp_component}]}  | jq '.imageDetails[0].imageDigest' -r)
-                echo "Info: Image present in AWS ECR."
-                echo "${components[${cldp_component}]}: ${tags[${cldp_component}]}: $shaID" >> shafile.txt
-              fi
-             done
-        echo "-----------SHA FILE--------------"
-        cat shafile.txt
-        echo "-----------SHA FILE--------------"
+          if [[ ("${{inputs.component}}" =~ "all") ]]
+          then
+                echo "inputs.component  all"
+                exit 1
+          else
+                components=($(echo ${{ inputs.component }} | sed -e 's\,\ \g'))
+                echo "$components"
+                tags=($(echo ${{ inputs.tag }} | sed -e 's\,\ \g'))
+                echo "$tags"
+                touch ./shafile.txt
+                for cldp_component in ${!components[@]}
+                    do
+                      echo "AWS REPO: ${{ inputs.source_aws_repo_prefix }}"
+                      aws ecr describe-repositories | jq -r .repositories[].repositoryName
+                      repo_present=$(aws ecr describe-repositories | jq -r .repositories[].repositoryName | grep -E "${{ inputs.source_aws_repo_prefix }}/${components[${cldp_component}]}$" || true)
+                      echo "repo_present: $repo_present"
+                      tag_present=$(aws ecr describe-images --repository-name=$repo_present --query 'sort_by(imageDetails,& imagePushedAt)[*].imageTags[0]'  | grep "${tags[${cldp_component}]}" || true)
+                      echo "TAG: $tag_present"
+                      echo " $repo_present $tag_present "
+                      if [[ "$repo_present" = "" ]]
+                        then
+                          echo "ERR: Image is not present in AWS ECR. Please promote to ECR"
+                          exit 1
+                      elif [[ "$tag_present" = "" ]]
+                        then
+                          echo "ERR: Tag is not present in AWS ECR. Please check whether the tag you provided is proper"
+                          exit 1
+                      else
+                        shaID=$(aws ecr describe-images --repository-name=${{ inputs.source_aws_repo_prefix }}/${components[${cldp_component}]} --image-ids imageTag=${tags[${cldp_component}]}  | jq '.imageDetails[0].imageDigest' -r)
+                        echo "Info: Image present in AWS ECR."
+                        echo "${components[${cldp_component}]}: ${tags[${cldp_component}]}: $shaID" >> shafile.txt
+                      fi
+                    done
+                echo "-----------SHA FILE--------------"
+                cat shafile.txt
+                echo "-----------SHA FILE--------------"
+            fi
       shell: bash
