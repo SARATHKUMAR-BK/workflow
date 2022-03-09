@@ -54,8 +54,19 @@ runs:
         else
           platforms=(${{ inputs.platform }})
       fi
-      components=($(echo ${{ inputs.component }} | sed -e 's\,\ \g'))
-      tags=($(echo ${{ inputs.tag }} | sed -e 's\,\ \g'))
+      components=()
+      tags=() 
+      if [[ ("${{inputs.components}}" =~ "all") ]]
+      then
+            while IFS= read -r line
+            do
+              components+=(`echo "$line" | cut -d " " -f 1 | sed 's/://'`)
+              tags+=(`echo "$line" | cut -d " " -f 2 | sed 's/://'`)
+            done < shafile.txt
+      else
+            components=($(echo ${{ inputs.component }} | sed -e 's\,\ \g'))
+            tags=($(echo ${{ inputs.tag }} | sed -e 's\,\ \g'))
+      fi
       echo "${components[@]}"
       echo "${tags[@]}"
       echo " "
