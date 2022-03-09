@@ -61,7 +61,7 @@ runs:
                         echo "TAG: $tag_present"
                         if [[ ("$tag_present" == "") ]]
                         then
-                              echo "The tag $tag_present is not present for ${{ inputs.source_aws_repo_prefix }}/${components[${cldp_component}]}"
+                              echo "The tag ${tags[${cldp_component}]} is not present for ${{ inputs.source_aws_repo_prefix }}/${components[${cldp_component}]}"
                               exit 1
                         fi
                         shaID=$(aws ecr describe-images --repository-name=${{ inputs.source_aws_repo_prefix }}/${components[${cldp_component}]} --image-ids imageTag=$tag_present  | jq '.imageDetails[0].imageDigest' -r)
