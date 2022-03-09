@@ -2,6 +2,12 @@ name: CLDP Promotion Job
 on:
   workflow_dispatch:
     inputs:
+      environment:
+        type: environment
+        description: Select the environment
+      boolean:
+        type: boolean
+        description: True or False or 1 or 2
       choice:
         type: choice
         description: Make a choice
