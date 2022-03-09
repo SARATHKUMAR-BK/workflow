@@ -130,7 +130,8 @@ runs:
               then
                       echo "${components[${component_index}]}: ${tags[${component_index}]}: $shaID" >> $deployment_file
               else
-                      sed -i "s/${components[${component_index}]}: ${tags[${component_index}]}.*/${components[${component_index}]}: ${tags[${component_index}]}: $shaID/g" $deployment_file
+                      tag=`echo "${tags[${component_index}]}"  | cut -d "_" -f 1`
+                      sed -i "s/${components[${component_index}]}: $tag.*/${components[${component_index}]}: ${tags[${component_index}]}: $shaID/g" $deployment_file
               fi
             done
           done
