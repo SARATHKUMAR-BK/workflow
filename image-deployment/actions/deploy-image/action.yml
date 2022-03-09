@@ -104,6 +104,7 @@ runs:
                       fi
               fi
             done
+             rm -rf deployment_file
         fi
 
           for platforms_index in ${!platforms[@]} 
