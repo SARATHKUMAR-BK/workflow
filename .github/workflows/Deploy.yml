@@ -44,7 +44,7 @@ jobs:
             component: ${{ github.event.inputs.component }}
             tag: ${{ github.event.inputs.tag }}
             platform: ${{ github.event.inputs.platform }}
-            app_version: ${{ github.event.inputs.currentversion }}
+            app_version: ${{ github.event.inputs.app_version }}
             validversion: ${{ steps.vars.outputs.CURRENT_MAJOR_VERSION }}
             
        - name: Configure AWS Credentials for Dev
