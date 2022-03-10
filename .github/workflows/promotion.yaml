@@ -32,12 +32,6 @@ on:
       components:
         description: "Components to promote ( all integration-server  universal-messaging terracotta-server)"
         default: terracotta-server
-        type: choice
-        options:
-        - all 
-        - integration-server
-        - terracotta-server
-        - universal-messaging
         required: true
       tags:
         description: "Tags of corresponding components ( all or specific tag for the component )"
