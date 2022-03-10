@@ -3,10 +3,10 @@ description: "Image Validation for the parameters passed"
 inputs:
   tag:
     description: Image Tag
-    required: false
+    required: true
   component:
     description: Name of the component
-    required: false
+    required: true
   source_aws_registry:
     description: Source AWS registry
     required: true
@@ -16,6 +16,12 @@ inputs:
   image_with_tag:
     description: image and tag pair
     required: true 
+  env:
+    description: Env
+    required: true 
+  type:
+    description: promotion or deploy
+    required: false  
 runs:
   using: composite
   steps:
@@ -46,30 +52,44 @@ runs:
                 echo " tags: ${tags[@]}"
             fi
             
-                for cldp_component in ${!components[@]}
+            if [[ ("${{inputs.type}}" =~ "promotion") ]]
+            then
+                    for cldp_component in ${!components[@]}
                     do
-                      echo "AWS REPO: ${{ inputs.source_aws_repo_prefix }}"
-                      repo_present=$(aws ecr describe-repositories | jq -r .repositories[].repositoryName | grep -E "${{ inputs.source_aws_repo_prefix }}/${components[${cldp_component}]}$" || true)
-                      echo "repo_present: $repo_present"
-                      if [[ "$repo_present" = "" ]]
+                        repo_present=$(aws ecr describe-repositories | jq -r .repositories[].repositoryName | grep -E "${{ inputs.source_aws_repo_prefix }}/${components[${cldp_component}]}$" || true)
+                        echo "repo_present: $repo_present"
+                        if [[ "$repo_present" = "" ]]
                         then
-                          echo "ERR: ${{ inputs.source_aws_repo_prefix }}/${components[${cldp_component}]} repository is not present , Pls ask devops to create the repo"
+                          echo "ERR: ${{ inputs.source_aws_repo_prefix }}/${components[${cldp_component}]} repository is not present in  ${{ inputs.env }} Environment, Pls ask devops to create the repo"
                           exit 1
-                      else
-                      aws ecr describe-images --repository-name=$repo_present --query 'sort_by(imageDetails,& imagePushedAt)[*].imageTags[0]' --output yaml
-                        tag_present=$(aws ecr describe-images --repository-name=$repo_present --query 'sort_by(imageDetails,& imagePushedAt)[*].imageTags[0]' --output yaml | grep ${tags[${cldp_component}]} | tail -n 1 | awk -F'- ' '{print $2}' || true)
-                        echo "TAG: $tag_present"
-                        if [[ ("$tag_present" == "") ]]
-                        then
-                              echo "The tag ${tags[${cldp_component}]} is not present for ${{ inputs.source_aws_repo_prefix }}/${components[${cldp_component}]}"
-                              exit 1
                         fi
-                        shaID=$(aws ecr describe-images --repository-name=${{ inputs.source_aws_repo_prefix }}/${components[${cldp_component}]} --image-ids imageTag=$tag_present  | jq '.imageDetails[0].imageDigest' -r)
-                        echo "Info: Image present in AWS ECR."
-                        echo "${components[${cldp_component}]}: $tag_present: $shaID" >> shafile.txt
-                      fi
-                    done
-                echo "-----------SHA FILE--------------"
-                cat shafile.txt
-                echo "-----------SHA FILE--------------"
+              else
+            
+                  for cldp_component in ${!components[@]}
+                      do
+                        echo "AWS REPO: ${{ inputs.source_aws_repo_prefix }}"
+                        repo_present=$(aws ecr describe-repositories | jq -r .repositories[].repositoryName | grep -E "${{ inputs.source_aws_repo_prefix }}/${components[${cldp_component}]}$" || true)
+                        echo "repo_present: $repo_present"
+                        if [[ "$repo_present" = "" ]]
+                          then
+                            echo "ERR: ${{ inputs.source_aws_repo_prefix }}/${components[${cldp_component}]} repository is not present in  ${{ inputs.env }} Environment, Pls ask devops to create the repo"
+                            exit 1
+                        else
+                        aws ecr describe-images --repository-name=$repo_present --query 'sort_by(imageDetails,& imagePushedAt)[*].imageTags[0]' --output yaml
+                          tag_present=$(aws ecr describe-images --repository-name=$repo_present --query 'sort_by(imageDetails,& imagePushedAt)[*].imageTags[0]' --output yaml | grep ${tags[${cldp_component}]} | tail -n 1 | awk -F'- ' '{print $2}' || true)
+                          echo "TAG: $tag_present"
+                          if [[ ("$tag_present" == "") ]]
+                          then
+                                echo "The tag ${tags[${cldp_component}]} is not present for ${{ inputs.source_aws_repo_prefix }}/${components[${cldp_component}]}"
+                                exit 1
+                          fi
+                          shaID=$(aws ecr describe-images --repository-name=${{ inputs.source_aws_repo_prefix }}/${components[${cldp_component}]} --image-ids imageTag=$tag_present  | jq '.imageDetails[0].imageDigest' -r)
+                          echo "Info: Image present in AWS ECR."
+                          echo "${components[${cldp_component}]}: $tag_present: $shaID" >> shafile.txt
+                        fi
+                      done
+                  echo "-----------SHA FILE--------------"
+                  cat shafile.txt
+                  echo "-----------SHA FILE--------------"
+                fi
       shell: bash
