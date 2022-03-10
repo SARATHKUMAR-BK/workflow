@@ -115,8 +115,8 @@ jobs:
        - name: Validate image
          uses: ./image-deployment/actions/deploy-image-verification
          with:
-            tag: ${{ github.event.inputs.tag }}
-            component: ${{ github.event.inputs.component }}
+            tag: ${{ github.event.inputs.tags }}
+            component: ${{ github.event.inputs.components }}
             source_aws_registry: ${{ steps.img-regs.outputs.AWS_TARGET_REG_URL }}
             source_aws_repo_prefix: ${{ steps.img-regs.outputs.AWS_SOURCE_REPO_PREFIX }}
             image_with_tag: ${{ steps.vars.outputs.DEV_REFRESH_IMAGES }}
