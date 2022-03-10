@@ -56,7 +56,7 @@ jobs:
        -  name: ECR RnD Login
           id: ecr-dev-login
           uses: aws-actions/amazon-ecr-login@v1
-          if: github.event.inputs. target_env == 'dev' && github.event.inputs.platform == 'aws'
+          if: github.event.inputs.target_env == 'dev' && github.event.inputs.platform == 'aws'
  
        - name: Configure AWS Credentials for Int
          uses: aws-actions/configure-aws-credentials@v1
@@ -68,7 +68,7 @@ jobs:
        -  name: ECR RnD Login
           id: ecr-int-login
           uses: aws-actions/amazon-ecr-login@v1
-          if: github.event.inputs. target_env == 'int' && github.event.inputs.platform == 'aws'
+          if: github.event.inputs.target_env == 'int' && github.event.inputs.platform == 'aws'
           
             
        - name: Set up Reg URLs
@@ -91,6 +91,7 @@ jobs:
             source_aws_registry: ${{ steps.img-regs.outputs.AWS_TARGET_REG_URL }}
             source_aws_repo_prefix: ${{ steps.img-regs.outputs.AWS_SOURCE_REPO_PREFIX }}
             image_with_tag: ${{ steps.vars.outputs.DEV_REFRESH_IMAGES }}
+            env: ${{ github.event.inputs.target_env }}
             
        - name: Configure AWS Credentials for s3 files
          uses: aws-actions/configure-aws-credentials@v1
