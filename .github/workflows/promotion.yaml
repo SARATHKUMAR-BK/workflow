@@ -10,6 +10,7 @@ on:
         - aws
       source_env:
         description: "Source Environment(dev spro int stage preprod)"
+        type: choice
         default: dev
         options:
         - dev
@@ -20,6 +21,7 @@ on:
         required: true
       target_env:
         description: "Target Environment(int stage preprod prod)"
+        type: choice
         default: int
         options:
         - int
@@ -30,6 +32,12 @@ on:
       components:
         description: "Components to promote ( all integration-server  universal-messaging terracotta-server)"
         default: terracotta-server
+        type: choice
+        options:
+        - all 
+        - integration-server
+        - terracotta-server
+        - universal-messaging
         required: true
       tags:
         description: "Tags of corresponding components ( all or specific tag for the component )"
