@@ -29,7 +29,7 @@ runs:
       run: |
         valid_src_env=(dev spro int stage preprod)
         valid_target_env=(int stage preprod prod)
-        valid_components=("integration-server" "universal-messaging" "terracotta-server" )
+        valid_components=("integration-server" "universal-messaging" "terracotta-server" "lj")
         valid_platform=(aws azure all)
         valid_env_pair=(dev-int int-stage stage-preprod spro-preprod)
         
