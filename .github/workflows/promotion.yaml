@@ -120,7 +120,7 @@ jobs:
             source_aws_registry: ${{ steps.img-regs.outputs.AWS_TARGET_REG_URL }}
             source_aws_repo_prefix: ${{ steps.img-regs.outputs.AWS_SOURCE_REPO_PREFIX }}
             image_with_tag: ${{ steps.vars.outputs.DEV_REFRESH_IMAGES }}
-            target_env: ${{ github.event.inputs.target_env }}
+            env: ${{ github.event.inputs.target_env }}
             type: promotion
 
        - name: Configure AWS Credentials for s3
