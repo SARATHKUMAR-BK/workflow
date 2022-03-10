@@ -100,14 +100,6 @@ jobs:
          id: ecr-int-login
          uses: aws-actions/amazon-ecr-login@v1
          if: (github.event.inputs.target_env == 'int' || github.event.inputs.source_env == 'int') && (github.event.inputs.platform == 'aws')
-
-       - name: Configure AWS Credentials for s3
-         uses: aws-actions/configure-aws-credentials@v1
-         with:
-          aws-access-key-id: ${{ secrets.ACCESSKEY }}
-          aws-secret-access-key: ${{ secrets.SECRETKEY }}
-          aws-region: ${{ secrets.AWS_REGION }}
-
  
        - name: Set up Reg URLs
          id: img-regs
@@ -119,8 +111,25 @@ jobs:
             echo "::set-output name=AWS_SOURCE_REG_URL::${{ steps.ecr-dev-login.outputs.registry }}"
             echo "::set-output name=AWS_TARGET_REG_URL::${{ steps.ecr-int-login.outputs.registry }}"
           fi
+          
+       - name: Validate image
+         uses: ./image-deployment/actions/deploy-image-verification
+         with:
+            tag: ${{ github.event.inputs.tag }}
+            component: ${{ github.event.inputs.component }}
+            source_aws_registry: ${{ steps.img-regs.outputs.AWS_TARGET_REG_URL }}
+            source_aws_repo_prefix: ${{ steps.img-regs.outputs.AWS_SOURCE_REPO_PREFIX }}
+            image_with_tag: ${{ steps.vars.outputs.DEV_REFRESH_IMAGES }}
+            target_env: ${{ github.event.inputs.target_env }}
+            type: promotion
 
-    
+       - name: Configure AWS Credentials for s3
+         uses: aws-actions/configure-aws-credentials@v1
+         with:
+          aws-access-key-id: ${{ secrets.ACCESSKEY }}
+          aws-secret-access-key: ${{ secrets.SECRETKEY }}
+          aws-region: ${{ secrets.AWS_REGION }}
+
        - name: Promote Images to Env
          uses: ./image-deployment/actions/promote-image
          with:
