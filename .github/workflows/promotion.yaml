@@ -2,31 +2,30 @@ name: CLDP Promotion Job
 on:
   workflow_dispatch:
     inputs:
-      environment:
-        type: environment
-        description: Select the environment
-      boolean:
-        type: boolean
-        description: True or False or 1 or 2
-      choice:
-        type: choice
-        description: Make a choice
-        options:
-        - foo
-        - bar
-        - baz
       platform:
-        description: "Platform (aws,azure,all)"
-        default: aws
+        type: choice
         required: true
-        options: ['production', 'staging', 'development']
+        description: "Platform (aws)"
+        options:
+        - aws
       source_env:
         description: "Source Environment(dev spro int stage preprod)"
         default: dev
+        options:
+        - dev
+        - int
+        - spro
+        - stage
+        - preprod
         required: true
       target_env:
         description: "Target Environment(int stage preprod prod)"
         default: int
+        options:
+        - int
+        - prod
+        - stage
+        - preprod
         required: true
       components:
         description: "Components to promote ( all integration-server  universal-messaging terracotta-server)"
