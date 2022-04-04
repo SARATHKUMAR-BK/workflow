@@ -66,7 +66,6 @@ runs:
               echo "inside if"
               if [[ !("all" =~ "${{inputs.tag}}") ]]
               then
-                echo "inside else"
                 echo "If component is all then tag must be all" 
                 exit 1
               fi
