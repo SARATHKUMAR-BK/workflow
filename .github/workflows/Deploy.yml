@@ -6,14 +6,6 @@ on:
         description: Env to deploy the builds(dev,int,stag,spro)
         default: dev
         required: true
-      component:
-        description: Name of the component(Possible values are all integration-server,universal-messaging)
-        default: terracotta-server
-        required: true
-      tag:
-        description: Mention the tag of the image ( Example all or specific tag)
-        default: "10.11.22.04"
-        required: true
       platform:
         description: Specify the Cloud Platform ( Example aws , azure )
         default: aws
@@ -41,8 +33,8 @@ jobs:
          uses: ./image-deployment/actions/inputvalidation
          with:
             target_env: ${{ github.event.inputs.target_env }}
-            component: ${{ github.event.inputs.component }}
-            tag: ${{ github.event.inputs.tag }}
+            component: all
+            tag: all
             platform: ${{ github.event.inputs.platform }}
             app_version: ${{ github.event.inputs.app_version }}
             validversion: ${{ steps.vars.outputs.CURRENT_MAJOR_VERSION }}
@@ -86,8 +78,8 @@ jobs:
        - name: Validate image
          uses: ./image-deployment/actions/deploy-image-verification
          with:
-            tag: ${{ github.event.inputs.tag }}
-            component: ${{ github.event.inputs.component }}
+            tag: all
+            component: all
             source_aws_registry: ${{ steps.img-regs.outputs.AWS_TARGET_REG_URL }}
             source_aws_repo_prefix: ${{ steps.img-regs.outputs.AWS_SOURCE_REPO_PREFIX }}
             image_with_tag: ${{ steps.vars.outputs.DEV_REFRESH_IMAGES }}
@@ -107,8 +99,8 @@ jobs:
          with: 
             target_env: ${{ github.event.inputs.target_env }}
             platform: ${{ github.event.inputs.platform }}
-            tag: ${{ github.event.inputs.tag }}
-            component: ${{ github.event.inputs.component }}
+            tag: all
+            component: all
             bucket_name: cldp
             metadata_path: buildfiles
             app_version: ${{ github.event.inputs.app_version }}
