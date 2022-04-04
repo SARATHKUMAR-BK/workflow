@@ -34,7 +34,7 @@ runs:
           then
                 components=()
                 tags=()
-                echo "inputs.component ${{inputs.image_with_tag}} "
+                echo "inputs.component is ${{inputs.image_with_tag}} "
                 for i in `echo ${{ inputs.image_with_tag }} | sed -e 's\,\ \g' `;
                 do
                     com=`echo $i | cut -d ":" -f 1` 
@@ -42,14 +42,15 @@ runs:
                     tag=`echo $i | cut -d ":" -f 2`
                     tags+=($tag)
                 done
-                echo " component: ${components[@]}"
-                echo " tags: ${tags[@]}"
+                echo " component list : ${components[@]}"
+                echo " tags list: ${tags[@]}"
                 
           else
+                echo "inputs.component is not all "
                 components=($(echo ${{ inputs.component }} | sed -e 's\,\ \g'))
                 tags=($(echo ${{ inputs.tag }} | sed -e 's\,\ \g'))
-                echo " component: ${components[@]}"
-                echo " tags: ${tags[@]}"
+                echo " component list: ${components[@]}"
+                echo " tags list: ${tags[@]}"
             fi
             
             if [[ ("${{inputs.type}}" =~ "promotion") ]]
@@ -68,15 +69,13 @@ runs:
             
                   for cldp_component in ${!components[@]}
                       do
-                        echo "AWS REPO: ${{ inputs.source_aws_repo_prefix }}"
+                        echo "REPO PREFIX: ${{ inputs.source_aws_repo_prefix }}"
                         repo_present=$(aws ecr describe-repositories | jq -r .repositories[].repositoryName | grep -E "${{ inputs.source_aws_repo_prefix }}/${components[${cldp_component}]}$" || true)
-                        echo "repo_present: $repo_present"
                         if [[ "$repo_present" = "" ]]
                           then
                             echo "ERR: ${{ inputs.source_aws_repo_prefix }}/${components[${cldp_component}]} repository is not present in  ${{ inputs.env }} Environment, Pls ask devops to create the repo"
                             exit 1
                         else
-                        aws ecr describe-images --repository-name=$repo_present --query 'sort_by(imageDetails,& imagePushedAt)[*].imageTags[0]' --output yaml
                           tag_present=$(aws ecr describe-images --repository-name=$repo_present --query 'sort_by(imageDetails,& imagePushedAt)[*].imageTags[0]' --output yaml | grep ${tags[${cldp_component}]} | tail -n 1 | awk -F'- ' '{print $2}' || true)
                           echo "TAG: $tag_present"
                           if [[ ("$tag_present" == "") ]]
