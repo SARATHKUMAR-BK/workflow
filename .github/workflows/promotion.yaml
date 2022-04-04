@@ -104,10 +104,10 @@ jobs:
        - name: Set up Reg URLs
          id: img-regs
          run: |
-          echo "::set-output name=AWS_SOURCE_REPO_PREFIX::${{ steps.vars.outputs.AWS_REPO_PREFIX }}"
-          
           if [[ ${{ github.event.inputs.source_env }} == "dev" ]]
           then
+            echo "::set-output name=AWS_SOURCE_REPO_PREFIX::${{ steps.vars.outputs.AWS_DEV_REPO_PREFIX }}"
+            echo "::set-output name=AWS_TARGET_REPO_PREFIX::${{ steps.vars.outputs.AWS_INT_REPO_PREFIX }}"
             echo "::set-output name=AWS_SOURCE_REG_URL::${{ steps.ecr-dev-login.outputs.registry }}"
             echo "::set-output name=AWS_TARGET_REG_URL::${{ steps.ecr-int-login.outputs.registry }}"
           fi
@@ -144,5 +144,6 @@ jobs:
           source_aws_registry: ${{ steps.img-regs.outputs.AWS_SOURCE_REG_URL }}
           target_aws_registry: ${{ steps.img-regs.outputs.AWS_TARGET_REG_URL }}
           source_aws_repo_prefix: ${{ steps.img-regs.outputs.AWS_SOURCE_REPO_PREFIX }}
+          target_aws_repo_prefix: ${{ steps.img-regs.outputs.AWS_TARGET_REPO_PREFIX }}
         
 
