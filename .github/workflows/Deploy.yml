@@ -4,6 +4,12 @@ on:
     inputs:
       target_env:
         description: Env to deploy the builds(dev,int,stag,spro)
+        type: choice
+        options:
+        - dev
+        - int
+        - spro
+        - stage
         default: dev
         required: true
       platform:
