@@ -42,7 +42,7 @@ on:
         required: true
 jobs:
   Promote-Images:
-    runs-on: ubuntu-latest
+    runs-on: [ cldp ]
     steps:
        - uses: actions/checkout@v2
          name: Checkout the current repository
