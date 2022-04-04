@@ -30,8 +30,8 @@ on:
         - preprod
         required: true
       components:
-        description: "Components to promote ( all integration-server  universal-messaging terracotta-server)"
-        default: terracotta-server
+        description: "Components to promote ( all integration-server  universal-messaging terracotta-server lj db utf-server engx)"
+        default: all
         required: true
       tags:
         description: "Tags of corresponding components ( all or specific tag for the component )"
@@ -46,19 +46,6 @@ jobs:
     steps:
        - uses: actions/checkout@v2
          name: Checkout the current repository
-
-       - name: Details
-         id: shell
-         run: |
-           s="secrets.AWS_DEV_REGION"
-           echo "::set-output name=sec::secrets.AWS_DEV_REGION"
-         shell: bash
-         
-       - name: Details
-         id: shell2
-         run: |
-           echo "${{ steps.shell.outputs.sec }}"
-         shell: bash 
          
        - name: Apply Env File
          id: vars
