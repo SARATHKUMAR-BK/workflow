@@ -61,9 +61,12 @@ runs:
         echo "source_aws_repo_prefix  ${{ inputs.source_aws_repo_prefix }}"
         echo "source_aws_registry  ${{ inputs.source_aws_registry }}"
         echo "target_aws_registry  ${{ inputs.target_aws_registry }}"
+        echo "target_aws_repo_prefix  ${{ inputs.target_aws_repo_prefix }}"
         #--------------------------------------------Remove existing docker images------------------
-        #  docker images
-        # docker rmi -f $(docker images -aq) 1> /dev/null
+          echo "Remove existing docker images" 
+         docker rmi -f $(docker images -aq) 1> /dev/null
+         docker images
+          echo "Cleanup is done"
         #-----------------------------------------------------------------------------------------------
         
         for pindex in ${!platforms[@]}
@@ -96,8 +99,8 @@ runs:
                  
                    #---------------------------------Compare the SHA code for source env and source repository---------------------------------------------#
                    
-              echo "Source file details"
-               cat $sourcebuildfile
+              echo "Source file details-----------"
+              cat $sourcebuildfile
               echo "--------------------------------------"
                                         #----------------------Check all component------------------------------------------
              if [[ ("${{inputs.components}}" =~ "all") ]]
@@ -108,8 +111,8 @@ runs:
                     component_name=`echo "$line" | cut -d " " -f 1 | sed 's/://'`
                     tag_name=`echo "$line" | cut -d " " -f 2 | sed 's/://'`
                     sha_in_deplyfile=`echo "$line" | cut -d " " -f 3`
-                    echo "component_name= $component_name"
-                    echo "tag_name $tag_name"
+                #    echo "component_name= $component_name"
+                 #   echo "tag_name $tag_name"
                     echo "sha_in_deplyfile $sha_in_deplyfile"
                      docker pull ${{ inputs.source_aws_registry }}/${{ inputs.source_aws_repo_prefix }}/$component_name:$tag_name
                      sha_in_repo=`docker inspect --format='{{.RepoDigests}}' ${{ inputs.source_aws_registry }}/${{ inputs.source_aws_repo_prefix }}/$component_name:$tag_name  | sed 's:^.\(.*\).$:\1:' | tr " " "\n" | grep ${{ inputs.source_aws_registry }}/${{ inputs.source_aws_repo_prefix }}/$component_name  | cut -d "@" -f 2`
@@ -160,8 +163,6 @@ runs:
              if [[ ("${{inputs.components}}" =~ "all") ]]
              then
                 cp  $sourcebuildfile $targetbuildfile
-                echo "target file" 
-                cat $targetbuildfile
              else
                   for cindex in ${!components[@]}
                   do
@@ -180,7 +181,9 @@ runs:
                     fi
                   done
                fi
+                   echo "target file" 
                   cat $targetbuildfile
+                  echo "----------------------------------------------------------------------------"
          done
          
          #------------------------------------------------pushed to target repo------------------------------------#
@@ -212,7 +215,8 @@ runs:
         done
         
         #--------------------------------------------Remove existing docker images------------------
-       #   docker images
-        # docker rmi -f $(docker images -aq) 1> /dev/null
+         echo "Remove existing docker images"
+         docker images
+         docker rmi -f $(docker images -aq) 1> /dev/null
 
         
