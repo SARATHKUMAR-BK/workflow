@@ -92,7 +92,21 @@ jobs:
             source_aws_repo_prefix: ${{ steps.img-regs.outputs.AWS_SOURCE_REPO_PREFIX }}
             image_with_tag: ${{ steps.vars.outputs.DEV_REFRESH_IMAGES }}
             env: ${{ github.event.inputs.target_env }}
-            
+      outputs:
+       output1: ${{ steps.img-regs.outputs.AWS_TARGET_REG_URL }}
+       output2: ${{ steps.img-regs.outputs.AWS_SOURCE_REPO_PREFIX }}
+
+
+  Deploy_image1:
+      name: Deploying to CA3S Dev Environment
+      if: ${{ always() }}
+      needs: [Deploy_image]
+      runs-on: ubuntu-latest
+      steps:
+       - uses: actions/checkout@v2
+         name: Checkout the current repository
+         
+
        - name: Configure AWS Credentials for s3 files
          uses: aws-actions/configure-aws-credentials@v1
          with:
@@ -112,5 +126,5 @@ jobs:
             bucket_name: cldp
             metadata_path: buildfiles
             app_version: ${{ github.event.inputs.app_version }}
-            source_aws_registry: ${{ steps.img-regs.outputs.AWS_TARGET_REG_URL }}
-            source_aws_repo_prefix: ${{ steps.img-regs.outputs.AWS_SOURCE_REPO_PREFIX }}
+            source_aws_registry: ${{ needs.Deploy_image.outputs.AWS_TARGET_REG_URL }}
+            source_aws_repo_prefix: ${{ needs.Deploy_image.outputs.AWS_SOURCE_REPO_PREFIX }}
